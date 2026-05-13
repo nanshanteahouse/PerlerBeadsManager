@@ -1,0 +1,106 @@
+<div class="page-header">
+  <h1 class="page-title">仪表盘</h1>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-card__value"><%= stats.totalColors %></div>
+    <div class="stat-card__label">色号总数</div>
+  </div>
+  <div class="stat-card stat-card--success">
+    <div class="stat-card__value"><%= stats.totalBeads.toLocaleString() %></div>
+    <div class="stat-card__label">库存总颗粒数</div>
+  </div>
+  <div class="stat-card stat-card--warning">
+    <div class="stat-card__value"><%= stats.lowStockCount %></div>
+    <div class="stat-card__label">低库存色号 (&le;50)</div>
+  </div>
+  <div class="stat-card stat-card--danger">
+    <div class="stat-card__value"><%= stats.outOfStockCount %></div>
+    <div class="stat-card__label">已耗尽色号</div>
+  </div>
+</div>
+
+<% if (lowStockItems.length > 0) { %>
+<div class="card">
+  <div class="card__header">
+    <h2 class="card__title">库存不足预警</h2>
+    <span class="text-sm text-secondary"><%= lowStockItems.length %> 个色号库存不足</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>色号</th>
+          <th>名称</th>
+          <th>当前库存</th>
+          <th>状态</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% lowStockItems.forEach(function(item) { %>
+        <tr>
+          <td>
+            <span class="color-swatch color-swatch--sm" style="background:<%= item.hex %>; color:<%= (function(h){ var c = h.replace('#',''); var vals = c.match(/\w\w/g); if (!vals) return '#000'; var rgb = vals.map(function(x){var v=parseInt(x,16)/255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)}); var lum=0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2]; return lum>0.179?'#000':'#fff'; })(item.hex) %>"><%= item.code %></span>
+          </td>
+          <td><%= item.name || '—' %></td>
+          <td class="<%= item.stock <= 0 ? 'stock-value--out' : 'stock-value--low' %>"><%= item.stock %></td>
+          <td>
+            <% if (item.stock <= 0) { %>
+              <span class="text-danger">已耗尽</span>
+            <% } else { %>
+              <span class="text-warning">低于安全线</span>
+            <% } %>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<% } %>
+
+<div class="card">
+  <div class="card__header">
+    <h2 class="card__title">最近图纸</h2>
+    <span class="text-sm text-secondary"><%= stats.totalPatterns %> 个图纸</span>
+  </div>
+
+  <% if (recentPatterns.length > 0) { %>
+  <div class="pattern-list">
+    <% recentPatterns.forEach(function(pattern) { %>
+    <div class="pattern-card">
+      <div class="pattern-card__header">
+        <span class="pattern-card__name">📄 <%= pattern.name %></span>
+        <span class="text-sm text-secondary"><%= pattern.beads.length %> 种色号 · <%= pattern.totalBeads.toLocaleString() %> 粒</span>
+      </div>
+      <div class="pattern-card__meta">
+        创建于 <%= new Date(pattern.createdAt).toLocaleDateString('zh-CN') %>
+      </div>
+      <div class="pattern-card__actions">
+        <a href="/patterns/<%= pattern.id %>/edit" class="btn btn--sm btn--secondary">编辑</a>
+        <a href="/patterns" class="btn btn--sm btn--ghost">查看全部 →</a>
+      </div>
+    </div>
+    <% }); %>
+  </div>
+  <% } else { %>
+  <div class="empty-state">
+    <div class="empty-state__icon">📄</div>
+    <div class="empty-state__text">还没有创建任何图纸</div>
+    <a href="/patterns/new" class="btn btn--primary">创建第一个图纸</a>
+  </div>
+  <% } %>
+</div>
+
+<div class="flex gap-8 mt-24 flex-wrap">
+  <a href="/colors" class="btn btn--secondary">
+    🎨 浏览色号库 (<%= stats.totalColors %> 色)
+  </a>
+  <a href="/inventory" class="btn btn--secondary">
+    📦 管理库存
+  </a>
+  <a href="/color-diff" class="btn btn--secondary">
+    🔬 色差计算器
+  </a>
+</div>

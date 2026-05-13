@@ -1,0 +1,197 @@
+<div class="page-header">
+  <h1 class="page-title">色号管理</h1>
+</div>
+
+<div class="filter-bar" id="filter-bar">
+  <div class="filter-bar__tags">
+    <button class="filter-bar__tag filter-bar__tag--active" data-series="">全部</button>
+    <button class="filter-bar__tag" data-series="A">
+      <span class="filter-bar__tag-text-long">A-黄</span>
+      <span class="filter-bar__tag-text-short">A</span>
+    </button>
+    <button class="filter-bar__tag" data-series="B">
+      <span class="filter-bar__tag-text-long">B-绿</span>
+      <span class="filter-bar__tag-text-short">B</span>
+    </button>
+    <button class="filter-bar__tag" data-series="C">
+      <span class="filter-bar__tag-text-long">C-蓝</span>
+      <span class="filter-bar__tag-text-short">C</span>
+    </button>
+    <button class="filter-bar__tag" data-series="D">
+      <span class="filter-bar__tag-text-long">D-紫</span>
+      <span class="filter-bar__tag-text-short">D</span>
+    </button>
+    <button class="filter-bar__tag" data-series="E">
+      <span class="filter-bar__tag-text-long">E-粉</span>
+      <span class="filter-bar__tag-text-short">E</span>
+    </button>
+    <button class="filter-bar__tag" data-series="F">
+      <span class="filter-bar__tag-text-long">F-红</span>
+      <span class="filter-bar__tag-text-short">F</span>
+    </button>
+    <button class="filter-bar__tag" data-series="G">
+      <span class="filter-bar__tag-text-long">G-棕</span>
+      <span class="filter-bar__tag-text-short">G</span>
+    </button>
+    <button class="filter-bar__tag" data-series="H">
+      <span class="filter-bar__tag-text-long">H-灰</span>
+      <span class="filter-bar__tag-text-short">H</span>
+    </button>
+    <button class="filter-bar__tag" data-series="M">
+      <span class="filter-bar__tag-text-long">M-莫兰迪</span>
+      <span class="filter-bar__tag-text-short">M</span>
+    </button>
+  </div>
+  <div class="filter-bar__search">
+    <span class="filter-bar__search-icon">🔍</span>
+    <input type="text" class="filter-bar__search-input" id="search-input" placeholder="搜索色号或名称...">
+    <button class="filter-bar__search-btn" id="search-btn" aria-label="搜索">🔍</button>
+  </div>
+</div>
+
+<div class="color-grid" id="color-grid"></div>
+
+<div class="modal-overlay" id="color-detail-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__title" id="modal-color-code">A01</h2>
+      <button class="modal__close" id="modal-close" aria-label="关闭">×</button>
+    </div>
+    <div class="modal__body">
+      <div class="color-detail">
+        <div class="color-detail__swatch" id="modal-swatch"></div>
+        <div class="color-detail__info">
+          <div class="form-group">
+            <label class="form-label">HEX</label>
+            <div class="form-inline">
+              <span class="color-detail__hex" id="modal-hex">#FFFFFF</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">RGB</label>
+            <div class="color-detail__rgb" id="modal-rgb">255, 255, 255</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modal-name">中文名称</label>
+            <input type="text" class="form-input" id="modal-name" placeholder="未命名">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="modal-name-en">英文名称</label>
+            <input type="text" class="form-input" id="modal-name-en" placeholder="Unnamed">
+          </div>
+          <div class="form-group">
+            <label class="form-label">当前库存</label>
+            <div class="color-detail__stock" id="modal-stock">0</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">最近交易</label>
+            <div class="color-detail__transactions" id="modal-transactions">
+              <div class="text-secondary text-sm">暂无交易记录</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <a href="#" class="btn btn--secondary" id="modal-color-diff">色差计算器 →</a>
+      <button class="btn btn--primary" id="modal-save">保存</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.color-detail {
+  display: flex;
+  gap: 20px;
+}
+
+.color-detail__swatch {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.color-detail__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.color-detail__hex {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.color-detail__rgb {
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.color-detail__stock {
+  font-weight: 600;
+}
+
+.color-detail__transactions {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.85rem;
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-item__date {
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+}
+
+.transaction-item__type {
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.transaction-item__type--purchase {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.transaction-item__type--consumption {
+  background: var(--error-bg);
+  color: var(--danger);
+}
+
+.transaction-item__type--adjustment {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+
+.transaction-item__qty {
+  font-weight: 600;
+  margin-left: auto;
+}
+
+@media (max-width: 480px) {
+  .color-detail {
+    flex-direction: column;
+  }
+
+  .color-detail__swatch {
+    width: 100%;
+    height: 80px;
+  }
+}
+</style>
+
+<script src="/js/colors.js"></script>

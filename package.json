@@ -1,0 +1,23 @@
+{
+  "name": "perler-beads-manager",
+  "version": "1.0.0",
+  "description": "拼豆爱好者的全功能管理工具 — 色号管理、库存追踪、图纸设计、购物车、色差计算",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "init": "node scripts/init-colors.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "ejs": "^3.1.10",
+    "color-diff": "^1.4.0",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "keywords": ["perler-beads", "hama-beads", "inventory", "color-diff"],
+  "license": "MIT"
+}

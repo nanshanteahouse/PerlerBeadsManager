@@ -1,0 +1,53 @@
+<div class="page-header">
+  <h1 class="page-title">图纸管理</h1>
+  <div class="flex gap-8">
+    <button class="btn btn--secondary" id="import-btn">
+      <span>📥</span> 导入JSON
+    </button>
+    <a href="/patterns/new" class="btn btn--primary">
+      <span>+</span> 创建图纸
+    </a>
+  </div>
+</div>
+
+<div id="import-form" style="display:none; margin-bottom: 16px;" class="card">
+  <form id="import-file-form" enctype="multipart/form-data">
+    <div class="form-group">
+      <label class="form-label">选择 JSON 文件</label>
+      <input type="file" name="file" accept=".json" class="form-input" id="import-file-input" required>
+    </div>
+    <div class="flex gap-8">
+      <button type="submit" class="btn btn--primary">上传导入</button>
+      <button type="button" class="btn btn--ghost" id="import-cancel-btn">取消</button>
+    </div>
+  </form>
+</div>
+
+<div id="pattern-list" class="pattern-list">
+  <div class="empty-state">
+    <div class="empty-state__icon">📋</div>
+    <div class="empty-state__text">加载中...</div>
+  </div>
+</div>
+
+<div id="add-to-cart-modal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">加入购物车</h3>
+      <button class="modal__close" data-close-modal="add-to-cart-modal">×</button>
+    </div>
+    <div class="modal__body">
+      <p id="cart-modal-pattern-name" class="mb-8"></p>
+      <div class="form-group">
+        <label class="form-label">制作份数</label>
+        <input type="number" id="cart-quantity" class="form-input form-input--sm" value="1" min="1" max="99">
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary" data-close-modal="add-to-cart-modal">取消</button>
+      <button class="btn btn--primary" id="confirm-add-to-cart">确认加入</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/patterns.js"></script>

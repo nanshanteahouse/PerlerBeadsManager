@@ -1,0 +1,53 @@
+<div class="page-header">
+  <h1 class="page-title">购物车</h1>
+  <div class="flex gap-8">
+    <button class="btn btn--secondary" id="clear-cart-btn">清空购物车</button>
+    <button class="btn btn--primary" id="submit-cart-btn">提交购物车</button>
+  </div>
+</div>
+
+<div id="cart-content">
+  <div class="table-wrapper">
+    <table id="cart-table">
+      <thead>
+        <tr>
+          <th>图纸名称</th>
+          <th>图案件数</th>
+          <th>涉及色号</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="cart-tbody">
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cart-summary" id="demand-summary">
+    <h3 class="card__title mb-8">需求汇总</h3>
+    <div id="summary-items"></div>
+  </div>
+</div>
+
+<div class="empty-state" id="empty-state" style="display:none">
+  <div class="empty-state__icon">🛒</div>
+  <p class="empty-state__text">购物车是空的</p>
+  <a href="/patterns" class="btn btn--primary">浏览图纸</a>
+</div>
+
+<div class="modal-overlay" id="submit-confirm-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <span class="modal__title">确认提交购物车</span>
+      <button class="modal__close" data-close-modal>&times;</button>
+    </div>
+    <div class="modal__body" id="submit-modal-body">
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary" data-close-modal>取消</button>
+      <button class="btn btn--primary" id="confirm-submit-btn">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/cart.js"></script>

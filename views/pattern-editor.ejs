@@ -1,0 +1,103 @@
+<div class="page-header">
+  <h1 class="page-title"><%= pattern ? '编辑图纸' : '创建图纸' %></h1>
+</div>
+
+<form id="pattern-form" class="card">
+  <div class="form-group">
+    <label class="form-label" for="pattern-name">图纸名称 <span class="text-danger">*</span></label>
+    <input type="text" id="pattern-name" name="name" class="form-input" placeholder="例如：皮卡丘" required maxlength="100" value="<%= pattern ? pattern.name : '' %>">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">底板尺寸（可选）</label>
+    <div class="form-inline">
+      宽 <input type="number" id="board-width" name="boardWidth" class="form-input form-input--inline" placeholder="30" min="1" max="200" value="<%= pattern && pattern.boardSize ? pattern.boardSize.width : '' %>">
+      × 高 <input type="number" id="board-height" name="boardHeight" class="form-input form-input--inline" placeholder="30" min="1" max="200" value="<%= pattern && pattern.boardSize ? pattern.boardSize.height : '' %>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="pattern-description">备注描述（可选）</label>
+    <textarea id="pattern-description" name="description" class="form-textarea" placeholder="图纸说明、来源、注意事项等..."><%= pattern ? (pattern.description || '') : '' %></textarea>
+  </div>
+
+  <div class="card" style="margin-top: 24px;">
+    <div class="card__header">
+      <h3 class="card__title">色号用度</h3>
+      <button type="button" class="btn btn--secondary btn--sm" id="add-color-btn">+ 添加色号</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="beads-table">
+        <thead>
+          <tr>
+            <th style="width: 40px;">#</th>
+            <th style="width: 90px;">色号</th>
+            <th>名称</th>
+            <th style="width: 100px;">用量</th>
+            <th style="width: 100px;">库存</th>
+            <th style="width: 60px;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="beads-tbody">
+        </tbody>
+      </table>
+    </div>
+
+    <div id="beads-summary" class="flex justify-between items-center mt-16" style="padding: 12px; background: var(--bg-tertiary); border-radius: var(--radius-sm);">
+      <span id="beads-summary-text" class="text-sm text-secondary">总计色号：<strong>0</strong> 种 | 总计颗粒：<strong>0</strong> 粒</span>
+    </div>
+  </div>
+
+  <div class="flex gap-8 mt-16">
+    <button type="submit" class="btn btn--primary" id="save-btn">保存图纸</button>
+    <button type="button" class="btn btn--secondary" id="save-check-btn">保存并检查库存</button>
+    <a href="/patterns" class="btn btn--ghost">取消</a>
+  </div>
+</form>
+
+<div id="color-picker-modal" class="modal-overlay">
+  <div class="modal" style="max-width: 640px;">
+    <div class="modal__header">
+      <h3 class="modal__title">选择色号</h3>
+      <button class="modal__close" data-close-modal="color-picker-modal">×</button>
+    </div>
+    <div class="modal__body">
+      <div class="filter-bar" style="margin-bottom: 12px;">
+        <div class="filter-bar__tags" id="color-series-tags">
+          <button class="filter-bar__tag filter-bar__tag--active" data-series="">全部</button>
+          <button class="filter-bar__tag" data-series="A">A</button>
+          <button class="filter-bar__tag" data-series="B">B</button>
+          <button class="filter-bar__tag" data-series="C">C</button>
+          <button class="filter-bar__tag" data-series="D">D</button>
+          <button class="filter-bar__tag" data-series="E">E</button>
+          <button class="filter-bar__tag" data-series="F">F</button>
+          <button class="filter-bar__tag" data-series="G">G</button>
+          <button class="filter-bar__tag" data-series="H">H</button>
+          <button class="filter-bar__tag" data-series="M">M</button>
+        </div>
+      </div>
+      <div class="filter-bar__search" style="margin-left: 0; margin-bottom: 12px;">
+        <span class="filter-bar__search-icon">🔍</span>
+        <input type="text" class="filter-bar__search-input" id="color-search-input" placeholder="搜索色号或名称..." style="width: 100%;">
+      </div>
+      <div id="color-picker-grid" class="color-grid" style="max-height: 320px; overflow-y: auto;"></div>
+      <div id="quantity-input-section" style="display: none; margin-top: 16px;" class="form-group">
+        <label class="form-label">用量（颗粒数）</label>
+        <input type="number" id="selected-color-quantity" class="form-input form-input--sm" value="1" min="1" max="99999">
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary" data-close-modal="color-picker-modal">取消</button>
+      <button class="btn btn--primary" id="confirm-color-btn" disabled>确认添加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.__PATTERN_DATA__ = <%- JSON.stringify(pattern || null) %>;
+window.__COLORS_DATA__ = [];
+window.__INVENTORY_DATA__ = {};
+window.__EDIT_MODE__ = <%= pattern ? 'true' : 'false' %>;
+</script>
+<script src="/js/patterns.js"></script>

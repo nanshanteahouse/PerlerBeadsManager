@@ -1,0 +1,53 @@
+<div class="page-header">
+  <h1 class="page-title">色差计算器</h1>
+</div>
+
+<div class="diff-target">
+  <div class="diff-target__swatch" id="target-swatch" style="background: <%= preselectedHex || '#cccccc' %>; color: <%= preselectedHex ? (function(h){ var c=h.replace('#','');var vals=c.match(/\w\w/g);if(!vals)return'#000';var rgb=vals.map(function(x){var v=parseInt(x,16)/255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});var lum=0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2];return lum>0.179?'#000':'#fff'; })(preselectedHex) : '#000' %>">
+    <%= preselectedHex ? preselectedHex.toUpperCase().replace('#', '') : '?' %>
+  </div>
+  <div class="diff-target__input-group">
+    <div class="form-inline">
+      <input type="text" id="hex-input" class="form-input form-input--inline" placeholder="FF6B35" value="<%= preselectedHex ? preselectedHex.replace('#', '') : '' %>" maxlength="6">
+      <select id="color-library-select" class="form-select" style="max-width: 200px;">
+        <option value="">— 从色号库选择 —</option>
+      </select>
+    </div>
+    <div class="diff-legend">
+      <span class="diff-legend__item"><span class="diff-legend__dot diff-legend__dot--green"></span> 0-1 极度接近</span>
+      <span class="diff-legend__item"><span class="diff-legend__dot diff-legend__dot--yellow"></span> 1-3 非常接近</span>
+      <span class="diff-legend__item"><span class="diff-legend__dot diff-legend__dot--orange"></span> 3-5 可感知差异</span>
+      <span class="diff-legend__item"><span class="diff-legend__dot diff-legend__dot--red"></span> 5+ 显著差异</span>
+    </div>
+  </div>
+</div>
+
+<div class="filter-bar">
+  <label class="form-inline items-center gap-4">
+    <input type="checkbox" id="in-stock-only" checked>
+    <span>仅显示库存充足的色号</span>
+  </label>
+  <div class="form-inline items-center gap-4" style="margin-left: auto;">
+    <span>显示前</span>
+    <select id="limit-select" class="form-select" style="width: auto;">
+      <option value="10">10</option>
+      <option value="20" selected>20</option>
+      <option value="50">50</option>
+      <option value="0">全部</option>
+    </select>
+    <span>个结果</span>
+  </div>
+</div>
+
+<div id="results-container">
+  <div class="empty-state">
+    <div class="empty-state__icon">🎨</div>
+    <div class="empty-state__text">输入颜色代码或从色号库选择以计算色差</div>
+  </div>
+</div>
+
+<script>
+  window.PBM = window.PBM || {};
+  window.PBM.preselectedHex = '<%= preselectedHex %>';
+</script>
+<script src="/js/color-diff.js"></script>

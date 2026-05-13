@@ -1,0 +1,187 @@
+<div class="page-header">
+      <h1 class="page-title">库存管理</h1>
+      <div class="flex gap-8">
+        <button class="btn btn--secondary" id="manage-stores-btn">管理店家</button>
+        <button class="btn btn--primary" id="add-purchase-btn">添加购买记录</button>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-total-colors">--</div>
+        <div class="stat-card__label">色号种类</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value" id="stat-total-beads">--</div>
+        <div class="stat-card__label">库存总量</div>
+      </div>
+      <div class="stat-card stat-card--warning">
+        <div class="stat-card__value" id="stat-low-stock">--</div>
+        <div class="stat-card__label">库存不足</div>
+      </div>
+      <div class="stat-card stat-card--danger">
+        <div class="stat-card__value" id="stat-out-stock">--</div>
+        <div class="stat-card__label">已耗尽</div>
+      </div>
+    </div>
+
+    <div class="filter-bar" id="filter-bar">
+      <div class="filter-bar__tags" id="series-tags">
+        <button class="filter-bar__tag filter-bar__tag--active" data-series="all">全部</button>
+        <button class="filter-bar__tag" data-series="A">A-黄</button>
+        <button class="filter-bar__tag" data-series="B">B-绿</button>
+        <button class="filter-bar__tag" data-series="C">C-蓝</button>
+        <button class="filter-bar__tag" data-series="D">D-紫</button>
+        <button class="filter-bar__tag" data-series="E">E-粉</button>
+        <button class="filter-bar__tag" data-series="F">F-红</button>
+        <button class="filter-bar__tag" data-series="G">G-棕</button>
+        <button class="filter-bar__tag" data-series="H">H-灰</button>
+        <button class="filter-bar__tag" data-series="M">M-莫兰迪</button>
+      </div>
+      <div class="filter-bar__search">
+        <span class="filter-bar__search-icon">🔍</span>
+        <input type="text" class="filter-bar__search-input" id="search-input" placeholder="搜索色号或名称...">
+        <button class="filter-bar__search-btn" id="search-btn">🔍</button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="inventory-table" id="inventory-table">
+        <thead>
+          <tr>
+            <th>色号</th>
+            <th>名称</th>
+            <th>当前库存</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="inventory-tbody">
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card mt-24">
+      <div class="card__header">
+        <h2 class="card__title">最近交易记录</h2>
+      </div>
+      <div class="table-wrapper">
+        <table id="transactions-table">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>色号</th>
+              <th>类型</th>
+              <th>数量</th>
+              <th>店家</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-tbody">
+          </tbody>
+        </table>
+      </div>
+  </div>
+
+  <div class="modal-overlay" id="purchase-modal">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">添加购买记录</h3>
+        <button class="modal__close" data-close-modal="purchase-modal">×</button>
+      </div>
+      <div class="modal__body">
+        <form id="purchase-form">
+          <div class="form-group">
+            <label class="form-label">色号</label>
+            <select class="form-select" id="purchase-color" required>
+              <option value="">选择色号...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">数量</label>
+            <input type="number" class="form-input" id="purchase-quantity" min="1" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">店家</label>
+            <select class="form-select" id="purchase-store">
+              <option value="">选择店家...</option>
+            </select>
+            <input type="text" class="form-input mt-8" id="purchase-new-store" placeholder="或输入新店家名称">
+          </div>
+          <div class="form-group">
+            <label class="form-label">日期</label>
+            <input type="date" class="form-input" id="purchase-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">备注</label>
+            <textarea class="form-textarea" id="purchase-note" placeholder="可选备注..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" data-close-modal="purchase-modal">取消</button>
+        <button class="btn btn--primary" id="submit-purchase">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="adjustment-modal">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">调整库存</h3>
+        <button class="modal__close" data-close-modal="adjustment-modal">×</button>
+      </div>
+      <div class="modal__body">
+        <form id="adjustment-form">
+          <div class="form-group">
+            <label class="form-label">色号</label>
+            <input type="text" class="form-input" id="adjustment-code" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">当前库存</label>
+            <input type="text" class="form-input" id="adjustment-current" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">调整方式</label>
+            <div class="form-inline">
+              <label><input type="radio" name="adjustment-mode" value="delta" checked> 增量调整</label>
+              <label><input type="radio" name="adjustment-mode" value="absolute"> 设置新值</label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">调整量 / 新库存值</label>
+            <input type="number" class="form-input" id="adjustment-quantity" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">原因 <span class="text-danger">*</span></label>
+            <input type="text" class="form-input" id="adjustment-reason" placeholder="必填，如：盘点纠正、赠送、损耗" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" data-close-modal="adjustment-modal">取消</button>
+        <button class="btn btn--primary" id="submit-adjustment">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="stores-modal">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 class="modal__title">管理店家</h3>
+        <button class="modal__close" data-close-modal="stores-modal">×</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="form-label">店家列表（每行一个）</label>
+          <textarea class="form-textarea" id="stores-list" placeholder="淘宝-拼豆小店&#10;京东-文具店&#10;..."></textarea>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" data-close-modal="stores-modal">取消</button>
+        <button class="btn btn--primary" id="save-stores">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/inventory.js"></script>
