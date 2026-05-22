@@ -2,6 +2,7 @@
       <h1 class="page-title">库存管理</h1>
       <div class="flex gap-8">
         <button class="btn btn--secondary" id="manage-stores-btn">管理店家</button>
+        <button class="btn btn--secondary" id="batch-purchase-btn">批量添加</button>
         <button class="btn btn--primary" id="add-purchase-btn">添加购买记录</button>
       </div>
     </div>
@@ -184,4 +185,49 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="batch-purchase-modal">
+    <div class="modal modal--lg">
+      <div class="modal__header">
+        <h3 class="modal__title">批量添加购买记录</h3>
+        <button class="modal__close" data-close-modal="batch-purchase-modal">×</button>
+      </div>
+      <div class="modal__body">
+        <div class="batch-purchase__shared">
+          <div class="form-group">
+            <label class="form-label">统一店家</label>
+            <select class="form-select" id="shared-store">
+              <option value="">选择店家...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">统一日期</label>
+            <input type="date" class="form-input" id="shared-date">
+          </div>
+        </div>
+        <div class="batch-purchase__table-wrapper">
+          <table class="batch-purchase__table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>色号</th>
+                <th>数量</th>
+                <th>店家</th>
+                <th>日期</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="batch-purchase-tbody">
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn--secondary mt-8" id="add-batch-row-btn">+ 添加一行</button>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" data-close-modal="batch-purchase-modal">取消</button>
+        <button class="btn btn--primary" id="submit-batch-purchase" disabled>确认添加</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/inventory.js"></script>
+  <script src="/js/batch-purchase.js"></script>
