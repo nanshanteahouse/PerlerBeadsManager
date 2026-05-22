@@ -43,4 +43,30 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+router.post('/batch', (req, res) => {
+  try {
+    const { purchases, sharedStore, sharedDate } = req.body;
+
+    if (!Array.isArray(purchases)) {
+      return res.status(400).json({ message: 'purchases 必须是数组' });
+    }
+    if (purchases.length === 0) {
+      return res.status(400).json({ message: 'purchases 不能为空' });
+    }
+    if (purchases.length > 50) {
+      return res.status(400).json({ message: '单次最多添加 50 条记录' });
+    }
+
+    const result = transactionService.createBatchTransactions({ purchases, sharedStore, sharedDate });
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
