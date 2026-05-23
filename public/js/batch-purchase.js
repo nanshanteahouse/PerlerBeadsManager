@@ -251,9 +251,9 @@
   }
 
   function scrollToBottom() {
-    var tbody = document.getElementById('batch-purchase-tbody');
-    if (tbody) {
-      tbody.scrollTop = tbody.scrollHeight;
+    var wrapper = document.querySelector('.batch-purchase__table-wrapper');
+    if (wrapper) {
+      wrapper.scrollTop = wrapper.scrollHeight;
     }
   }
 

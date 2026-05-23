@@ -867,6 +867,17 @@ tr:hover td {
 /* ── Batch Purchase Modal ────────────────────────────── */
 .modal--lg {
   max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal--lg .modal__body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .batch-purchase__shared {
@@ -884,8 +895,11 @@ tr:hover td {
 
 .batch-purchase__table-wrapper {
   overflow-x: auto;
+  overflow-y: auto;
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
+  flex: 1;
+  min-height: 0;
 }
 
 .batch-purchase__table {
