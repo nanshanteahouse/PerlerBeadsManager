@@ -27,6 +27,7 @@
   function fetchColorsAndPopulate() {
     PBM.apiFetch('/api/colors').then(function (colors) {
       colors.forEach(function (color) {
+        if (color.code === 'MIX') return;
         var option = document.createElement('option');
         option.value = color.hex;
         option.textContent = color.code + ' — ' + (color.name || color.code);

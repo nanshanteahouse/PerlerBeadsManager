@@ -28,13 +28,37 @@
     PBM.updateCartBadge(cartData.cart.length);
 
     tbody.innerHTML = cartData.cart.map(item => {
+      const isMixedBeads = !item.patternId;
       const sufficient = isItemSufficient(item);
       const statusClass = sufficient ? 'text-success' : 'text-danger';
       const statusText = sufficient ? '✅ 充足' : '⚠️ 不足';
+      const nameDisplay = isMixedBeads
+        ? '♻️ ' + escapeHtml(item.patternName)
+        : '📄 ' + escapeHtml(item.patternName);
+
+      if (isMixedBeads) {
+        return `
+          <tr data-item-id="${item.id}">
+            <td data-label="图纸名称">${nameDisplay}</td>
+            <td data-label="混豆数量">
+              <div class="form-inline items-center">
+                <button class="btn btn--xs btn--secondary qty-dec" data-id="${item.id}">-</button>
+                <span class="font-mono" style="min-width:32px;text-align:center">${item.quantity}</span>
+                <button class="btn btn--xs btn--secondary qty-inc" data-id="${item.id}">+</button>
+              </div>
+            </td>
+            <td data-label="涉及色号">-</td>
+            <td data-label="状态"><span class="${statusClass}">${statusText}</span></td>
+            <td data-label="操作">
+              <button class="btn btn--xs btn--ghost remove-item" data-id="${item.id}">移除</button>
+            </td>
+          </tr>
+        `;
+      }
 
       return `
         <tr data-item-id="${item.id}">
-          <td data-label="图纸名称">${escapeHtml(item.patternName)}</td>
+          <td data-label="图纸名称">${nameDisplay}</td>
           <td data-label="图案件数">
             <div class="form-inline items-center">
               <button class="btn btn--xs btn--secondary qty-dec" data-id="${item.id}">-</button>
@@ -202,6 +226,34 @@
       btn.addEventListener('click', function () {
         PBM.closeAllModals();
       });
+    });
+
+    // Mixed beads modal
+    document.getElementById('add-mixed-beads-btn').addEventListener('click', function () {
+      PBM.openModal('mixed-beads-modal');
+    });
+
+    document.getElementById('submit-mixed-beads').addEventListener('click', function () {
+      var qty = parseInt(document.getElementById('mixed-beads-quantity').value, 10);
+      if (!qty || qty <= 0) {
+        PBM.showToast('请输入有效数量', 'error');
+        return;
+      }
+
+      PBM.apiFetch('/api/cart/mixed-beads', {
+        method: 'POST',
+        body: JSON.stringify({ quantity: qty }),
+      })
+        .then(function (result) {
+          PBM.closeModal('mixed-beads-modal');
+          document.getElementById('mixed-beads-quantity').value = '';
+          PBM.showToast('混豆已添加到购物车', 'success');
+          // Refresh cart list
+          fetchCart();
+        })
+        .catch(function (err) {
+          PBM.showToast(err.message, 'error');
+        });
     });
   });
 })();

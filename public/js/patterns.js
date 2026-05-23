@@ -437,6 +437,8 @@
 
       colorPickerGrid.innerHTML = '';
       filtered.forEach(function (color) {
+        // Skip mixed beads — cannot be used in patterns
+        if (color.code === 'MIX') return;
         var textColor = getTextColor(color.hex);
         var item = document.createElement('div');
         item.className = 'color-grid__item' + (selectedColorCode === color.code ? ' color-grid__item--selected' : '');

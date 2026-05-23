@@ -44,6 +44,7 @@
     document.getElementById('stat-total-beads').textContent = formatNumber(stats.totalBeads);
     document.getElementById('stat-low-stock').textContent = stats.lowStockCount;
     document.getElementById('stat-out-stock').textContent = stats.outOfStockCount;
+    document.getElementById('stat-mixed-beads').textContent = formatNumber(stats.mixedBeads || 0);
   }
 
   function formatNumber(num) {
@@ -68,6 +69,32 @@
       const textColor = PBM.getTextColor(hex);
       const isLow = item.quantity > 0 && item.quantity <= LOW_STOCK_THRESHOLD;
       const isOut = item.quantity === 0;
+      // Special rendering for mixed beads
+      if (item.code === 'MIX') {
+        return `
+          <tr class="inventory-row--mixed" data-code="${item.code}">
+            <td>
+              <div class="color-swatch color-swatch--mixed">
+                MIX
+              </div>
+            </td>
+            <td>混豆</td>
+            <td>${item.quantity}</td>
+            <td>
+              <div class="flex gap-4 flex-wrap">
+                <button class="btn btn--xs btn--secondary" data-action="add" data-qty="1">+1</button>
+                <button class="btn btn--xs btn--secondary" data-action="add" data-qty="10">+10</button>
+                <button class="btn btn--xs btn--secondary" data-action="add" data-qty="50">+50</button>
+                <button class="btn btn--xs btn--secondary" data-action="sub" data-qty="1">-1</button>
+                <button class="btn btn--xs btn--secondary" data-action="sub" data-qty="10">-10</button>
+                <button class="btn btn--xs btn--secondary" data-action="sub" data-qty="50">-50</button>
+                <button class="btn btn--xs btn--secondary" data-action="adjust">调整</button>
+                <button class="btn btn--xs btn--ghost" data-action="record">记录</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
       const rowClass = isOut ? 'inventory-row--out' : isLow ? 'inventory-row--low' : '';
       const qtyClass = isOut ? 'stock-value--out' : isLow ? 'stock-value--low' : '';
 
@@ -90,6 +117,7 @@
               <button class="btn btn--xs btn--secondary" data-action="sub" data-qty="50">-50</button>
               <button class="btn btn--xs btn--ghost" data-action="adjust">调整</button>
               <button class="btn btn--xs btn--ghost" data-action="record">记录</button>
+              <button class="btn btn--xs btn--ghost" data-action="mix-transfer">→混豆</button>
             </div>
           </td>
         </tr>
@@ -173,7 +201,8 @@
       items.map(function (item) {
         const color = colorsData[item.code] || {};
         const hex = color.hex || '#cccccc';
-        return '<option value="' + item.code + '" data-hex="' + hex + '">' + item.code + ' - ' + (color.name || '未命名') + '</option>';
+        const prefix = item.code === 'MIX' ? '\u2605 ' : '';
+        return '<option value="' + item.code + '" data-hex="' + hex + '">' + prefix + item.code + ' - ' + (color.name || '未命名') + '</option>';
       }).join('');
   }
 
@@ -181,6 +210,65 @@
     const select = document.getElementById('purchase-store');
     select.innerHTML = '<option value="">选择店家...</option>' +
       storesData.map((store) => `<option value="${store}">${store}</option>`).join('');
+  }
+
+  function openMixTransferModal(code) {
+    var item = inventoryData.find(function (i) { return i.code === code; });
+    if (!item) return;
+
+    var currentStock = item.quantity;
+    var defaultQty = Math.min(currentStock, 100);
+
+    document.getElementById('mix-transfer-code').value = code;
+    document.getElementById('mix-transfer-current').value = currentStock;
+    document.getElementById('mix-transfer-quantity').value = defaultQty;
+    document.getElementById('mix-transfer-quantity').max = currentStock;
+    updateMixTransferPreview();
+
+    PBM.openModal('mix-transfer-modal');
+  }
+
+  function updateMixTransferPreview() {
+    var code = document.getElementById('mix-transfer-code').value;
+    var current = parseInt(document.getElementById('mix-transfer-current').value, 10);
+    var qty = parseInt(document.getElementById('mix-transfer-quantity').value, 10) || 0;
+    var remaining = current - qty;
+    document.getElementById('mix-transfer-preview').textContent =
+      code + ': ' + current + ' \u2192 ' + remaining + ' | MIX: +' + qty;
+  }
+
+  function submitMixTransfer() {
+    var code = document.getElementById('mix-transfer-code').value;
+    var qty = parseInt(document.getElementById('mix-transfer-quantity').value, 10);
+
+    if (!qty || qty <= 0) {
+      PBM.showToast('请输入有效数量', 'error');
+      return;
+    }
+
+    PBM.apiFetch('/api/inventory/mix-transfer', {
+      method: 'POST',
+      body: JSON.stringify({ from: code, quantity: qty }),
+    })
+      .then(function (result) {
+        // Update local inventory data
+        var sourceItem = inventoryData.find(function (i) { return i.code === code; });
+        if (sourceItem) {
+          sourceItem.quantity = result.source.quantity;
+        }
+        var mixItem = inventoryData.find(function (i) { return i.code === 'MIX'; });
+        if (mixItem) {
+          mixItem.quantity = result.mixed.quantity;
+        }
+        renderInventory();
+        PBM.closeModal('mix-transfer-modal');
+        PBM.showToast(code + ' \u2192 MIX: ' + qty + ' \u2713', 'success');
+        refreshStats();
+        refreshTransactions();
+      })
+      .catch(function (err) {
+        PBM.showToast(err.message, 'error');
+      });
   }
 
   function bindEvents() {
@@ -220,6 +308,18 @@
         this.style.borderLeftColor = option.dataset.hex;
       }
     });
+
+    // Mix transfer modal
+    document.getElementById('submit-mix-transfer').addEventListener('click', submitMixTransfer);
+
+    document.getElementById('mix-transfer-quantity').addEventListener('input', updateMixTransferPreview);
+
+    document.getElementById('mix-transfer-all').addEventListener('click', function (e) {
+      e.preventDefault();
+      var current = parseInt(document.getElementById('mix-transfer-current').value, 10);
+      document.getElementById('mix-transfer-quantity').value = current;
+      updateMixTransferPreview();
+    });
   }
 
   function handleInventoryAction(e) {
@@ -239,6 +339,8 @@
     } else if (action === 'record') {
       document.getElementById('purchase-color').value = code;
       PBM.openModal('purchase-modal');
+    } else if (action === 'mix-transfer') {
+      openMixTransferModal(code);
     }
   }
 
