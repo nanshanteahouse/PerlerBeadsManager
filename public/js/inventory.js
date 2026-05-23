@@ -8,6 +8,9 @@
   let storesData = [];
   let currentSeries = 'all';
   let searchQuery = '';
+  let sortBy = 'code';
+  let sortOrder = 'asc';
+  let currentStockFilter = 'all';
 
   function init() {
     loadData();
@@ -54,22 +57,76 @@
     return num.toLocaleString();
   }
 
+  function sortInventory(items) {
+    var order = sortOrder === 'asc' ? 1 : -1;
+    return items.slice().sort(function (a, b) {
+      if (sortBy === 'quantity') {
+        return (a.quantity - b.quantity) * order || a.code.localeCompare(b.code);
+      }
+      return a.code.localeCompare(b.code) * order;
+    });
+  }
+
+  function filterInventory(items) {
+    let filtered = items;
+
+    if (currentSeries !== 'all') {
+      filtered = filtered.filter((item) => item.series === currentSeries);
+    }
+
+    if (currentStockFilter !== 'all') {
+      filtered = filtered.filter((item) => {
+        if (currentStockFilter === 'in-stock') return item.quantity > 0;
+        if (currentStockFilter === 'low') return item.quantity > 0 && item.quantity <= LOW_STOCK_THRESHOLD;
+        if (currentStockFilter === 'out') return item.quantity === 0;
+        return true;
+      });
+    }
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter((item) => {
+        const color = colorsData[item.code] || {};
+        return (
+          item.code.toLowerCase().includes(q) ||
+          (color.name && color.name.toLowerCase().includes(q))
+        );
+      });
+    }
+
+    return filtered;
+  }
+
+  function updateSortIndicators() {
+    document.querySelectorAll('.sort-indicator').forEach(function (el) {
+      el.textContent = '';
+      el.className = 'sort-indicator';
+    });
+    var activeIndicator = document.getElementById('sort-' + sortBy);
+    if (activeIndicator) {
+      activeIndicator.textContent = sortOrder === 'asc' ? ' \u25B2' : ' \u25BC';
+      activeIndicator.classList.add('sort-indicator--active');
+    }
+  }
+
   function renderInventory() {
     const tbody = document.getElementById('inventory-tbody');
     const filtered = filterInventory(inventoryData);
+    const sorted = sortInventory(filtered);
 
-    if (filtered.length === 0) {
+    updateSortIndicators();
+
+    if (sorted.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty-state">暂无数据</td></tr>';
       return;
     }
 
-    tbody.innerHTML = filtered.map((item) => {
+    tbody.innerHTML = sorted.map((item) => {
       const color = colorsData[item.code] || {};
       const hex = color.hex || '#cccccc';
       const textColor = PBM.getTextColor(hex);
       const isLow = item.quantity > 0 && item.quantity <= LOW_STOCK_THRESHOLD;
       const isOut = item.quantity === 0;
-      // Special rendering for mixed beads
       if (item.code === 'MIX') {
         return `
           <tr class="inventory-row--mixed" data-code="${item.code}">
@@ -125,27 +182,6 @@
     }).join('');
 
     addResponsiveLabels(tbody);
-  }
-
-  function filterInventory(items) {
-    let filtered = items;
-
-    if (currentSeries !== 'all') {
-      filtered = filtered.filter((item) => item.series === currentSeries);
-    }
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((item) => {
-        const color = colorsData[item.code] || {};
-        return (
-          item.code.toLowerCase().includes(q) ||
-          (color.name && color.name.toLowerCase().includes(q))
-        );
-      });
-    }
-
-    return filtered;
   }
 
   function addResponsiveLabels(tbody) {
@@ -251,7 +287,6 @@
       body: JSON.stringify({ from: code, quantity: qty }),
     })
       .then(function (result) {
-        // Update local inventory data
         var sourceItem = inventoryData.find(function (i) { return i.code === code; });
         if (sourceItem) {
           sourceItem.quantity = result.source.quantity;
@@ -282,6 +317,29 @@
       renderInventory();
     });
 
+    document.getElementById('stock-tags').addEventListener('click', (e) => {
+      const tag = e.target.closest('.filter-bar__tag');
+      if (!tag) return;
+
+      document.querySelectorAll('#stock-tags .filter-bar__tag').forEach((t) => t.classList.remove('filter-bar__tag--active'));
+      tag.classList.add('filter-bar__tag--active');
+      currentStockFilter = tag.dataset.stock;
+      renderInventory();
+    });
+
+    document.querySelectorAll('.th-sortable').forEach((th) => {
+      th.addEventListener('click', () => {
+        var newSortBy = th.dataset.sortBy;
+        if (sortBy === newSortBy) {
+          sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortBy = newSortBy;
+          sortOrder = 'asc';
+        }
+        renderInventory();
+      });
+    });
+
     const searchInput = document.getElementById('search-input');
     searchInput.addEventListener('input', PBM.debounce((e) => {
       searchQuery = e.target.value;
@@ -309,7 +367,6 @@
       }
     });
 
-    // Mix transfer modal
     document.getElementById('submit-mix-transfer').addEventListener('click', submitMixTransfer);
 
     document.getElementById('mix-transfer-quantity').addEventListener('input', updateMixTransferPreview);

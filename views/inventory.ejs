@@ -44,6 +44,12 @@
         <button class="filter-bar__tag" data-series="M">M-莫兰迪</button>
         <button class="filter-bar__tag" data-series="X">X-混豆</button>
       </div>
+      <div class="filter-bar__tags" id="stock-tags">
+        <button class="filter-bar__tag filter-bar__tag--active" data-stock="all">全部库存</button>
+        <button class="filter-bar__tag" data-stock="in-stock">有库存</button>
+        <button class="filter-bar__tag" data-stock="low">库存不足</button>
+        <button class="filter-bar__tag" data-stock="out">已耗尽</button>
+      </div>
       <div class="filter-bar__search">
         <span class="filter-bar__search-icon">🔍</span>
         <input type="text" class="filter-bar__search-input" id="search-input" placeholder="搜索色号或名称...">
@@ -55,9 +61,9 @@
       <table class="inventory-table" id="inventory-table">
         <thead>
           <tr>
-            <th>色号</th>
+            <th class="th-sortable" data-sort-by="code">色号 <span class="sort-indicator" id="sort-code"></span></th>
             <th>名称</th>
-            <th>当前库存</th>
+            <th class="th-sortable" data-sort-by="quantity">当前库存 <span class="sort-indicator" id="sort-quantity"></span></th>
             <th>操作</th>
           </tr>
         </thead>
