@@ -503,6 +503,30 @@ th {
   border-bottom: 1px solid var(--border-color);
 }
 
+.th-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.th-sortable:hover {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .th-sortable:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sort-indicator {
+  font-size: 0.65rem;
+  opacity: 0.3;
+}
+
+.sort-indicator--active {
+  opacity: 1;
+  color: var(--accent);
+}
+
 td {
   padding: 10px 12px;
   border-bottom: 1px solid var(--border-light);
