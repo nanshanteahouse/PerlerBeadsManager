@@ -17,6 +17,7 @@ const SERIES_NAMES = {
   G: '棕色/橙色系',
   H: '黑白灰色系',
   M: '莫兰迪色系',
+  X: '混豆',
 };
 
 /**
@@ -155,19 +156,30 @@ function updateInventory(code, quantity, reason, store, isDelta = true) {
  * @returns {Object} { totalColors, totalBeads, lowStockCount, outOfStockCount }
  */
 function getStats() {
-  const colors = readJSON(COLORS_FILE) || {};
+  const colors = readJSON(COLORS_FILE) || [];
   const inventory = readJSON(INVENTORY_FILE) || {};
 
   let totalColors = 0;
   let totalBeads = 0;
   let lowStockCount = 0;
   let outOfStockCount = 0;
+  let mixedBeads = 0;
 
   const LOW_STOCK_THRESHOLD = 50;
 
-  Object.keys(colors).forEach((code) => {
-    totalColors++;
+  // colors.json is an array, need to handle both array and object cases
+  const colorCodes = Array.isArray(colors) ? colors.map(c => c.code) : Object.keys(colors);
+
+  colorCodes.forEach((code) => {
     const qty = inventory[code] || 0;
+
+    if (code === 'MIX') {
+      mixedBeads = qty;
+      totalBeads += qty;
+      return;
+    }
+
+    totalColors++;
     totalBeads += qty;
 
     if (qty === 0) {
@@ -182,6 +194,7 @@ function getStats() {
     totalBeads,
     lowStockCount,
     outOfStockCount,
+    mixedBeads,
   };
 }
 
@@ -211,6 +224,77 @@ function updateStores(stores) {
 }
 
 /**
+ * Transfer beads from a source color to mixed beads
+ * @param {string} sourceCode - Source color code
+ * @param {number} quantity - Quantity to transfer
+ * @returns {Object} { success, source: {code, quantity}, mixed: {quantity}, transactions }
+ */
+function transferToMixed(sourceCode, quantity) {
+  if (!isValidColorCode(sourceCode)) {
+    throw new Error('无效的色号');
+  }
+
+  if (sourceCode === 'MIX') {
+    throw new Error('不能从混豆倒入混豆');
+  }
+
+  if (!isValidQuantity(quantity) || quantity <= 0) {
+    throw new Error('无效的数量');
+  }
+
+  const inventory = readJSON(INVENTORY_FILE) || {};
+  const transactions = readJSON(TRANSACTIONS_FILE) || [];
+
+  const sourceCurrent = inventory[sourceCode] || 0;
+  if (quantity > sourceCurrent) {
+    throw new Error(`库存不足：${sourceCode} 当前库存为 ${sourceCurrent}`);
+  }
+
+  const mixedCurrent = inventory['MIX'] || 0;
+
+  // Deduct source, add to MIX
+  inventory[sourceCode] = sourceCurrent - quantity;
+  inventory['MIX'] = mixedCurrent + quantity;
+
+  const now = new Date().toISOString();
+
+  const sourceTx = {
+    id: generateId(),
+    type: 'adjustment',
+    colorCode: sourceCode,
+    quantity: -quantity,
+    store: null,
+    date: now.split('T')[0],
+    note: '倒入混豆',
+    createdAt: now,
+  };
+
+  const mixTx = {
+    id: generateId(),
+    type: 'adjustment',
+    colorCode: 'MIX',
+    quantity: quantity,
+    store: null,
+    date: now.split('T')[0],
+    note: `从 ${sourceCode} 混入`,
+    createdAt: now,
+  };
+
+  transactions.unshift(mixTx);
+  transactions.unshift(sourceTx);
+
+  writeJSON(INVENTORY_FILE, inventory);
+  writeJSON(TRANSACTIONS_FILE, transactions);
+
+  return {
+    success: true,
+    source: { code: sourceCode, quantity: inventory[sourceCode] },
+    mixed: { quantity: inventory['MIX'] },
+    transactions: [sourceTx, mixTx],
+  };
+}
+
+/**
  * Generate a simple unique ID
  * @returns {string} Unique ID
  */
@@ -227,5 +311,6 @@ module.exports = {
   getStats,
   getStores,
   updateStores,
+  transferToMixed,
   SERIES_NAMES,
 };

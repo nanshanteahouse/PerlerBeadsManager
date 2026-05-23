@@ -41,6 +41,16 @@ router.put('/stores', (req, res) => {
   }
 });
 
+router.post('/mix-transfer', (req, res) => {
+  try {
+    const { from, quantity } = req.body;
+    const result = inventoryService.transferToMixed(from, quantity);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.get('/:code', (req, res) => {
   try {
     const { code } = req.params;
