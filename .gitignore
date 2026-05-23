@@ -1,5 +1,10 @@
 node_modules/
 data/.backup/
+data/inventory.json
+data/transactions.json
+data/cart.json
+data/stores.json
+data/patterns.json
 *.log
 .env
 .DS_Store
