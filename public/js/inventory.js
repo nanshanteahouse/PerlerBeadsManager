@@ -546,6 +546,10 @@
       .then((data) => renderStats(data));
   }
 
+  window.refreshInventory = refreshInventory;
+  window.refreshTransactions = refreshTransactions;
+  window.refreshStats = refreshStats;
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
