@@ -55,8 +55,13 @@ function getInventory(filters = {}) {
     }
   }
 
+  const sortBy = filters.sortBy || 'code';
   const sortOrder = sort === 'asc' ? 1 : -1;
+
   items.sort((a, b) => {
+    if (sortBy === 'quantity') {
+      return (a.quantity - b.quantity) * sortOrder || a.code.localeCompare(b.code);
+    }
     if (a.code < b.code) return -1 * sortOrder;
     if (a.code > b.code) return 1 * sortOrder;
     return 0;

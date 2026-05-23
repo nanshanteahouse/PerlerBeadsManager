@@ -5,8 +5,8 @@ const { sanitizeLimit } = require('../utils/validator');
 
 router.get('/', (req, res) => {
   try {
-    const { series, sort, lowStock } = req.query;
-    const inventory = inventoryService.getInventory({ series, sort, lowStock });
+    const { series, sort, sortBy, lowStock } = req.query;
+    const inventory = inventoryService.getInventory({ series, sort, sortBy, lowStock });
     res.json(inventory);
   } catch (err) {
     res.status(500).json({ message: err.message });
