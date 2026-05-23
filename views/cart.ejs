@@ -2,6 +2,7 @@
   <h1 class="page-title">购物车</h1>
   <div class="flex gap-8">
     <button class="btn btn--secondary" id="clear-cart-btn">清空购物车</button>
+    <button class="btn btn--secondary" id="add-mixed-beads-btn">+ 添加混豆</button>
     <button class="btn btn--primary" id="submit-cart-btn">提交购物车</button>
   </div>
 </div>
@@ -46,6 +47,31 @@
     <div class="modal__footer">
       <button class="btn btn--secondary" data-close-modal>取消</button>
       <button class="btn btn--primary" id="confirm-submit-btn">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="mixed-beads-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">手动添加材料</h3>
+      <button class="modal__close" data-close-modal="mixed-beads-modal">&times;</button>
+    </div>
+    <div class="modal__body">
+      <form id="mixed-beads-form">
+        <div class="form-group">
+          <label class="form-label">色号</label>
+          <input type="text" class="form-input" value="MIX - 混豆" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">预估用量 <span class="text-danger">*</span></label>
+          <input type="number" class="form-input" id="mixed-beads-quantity" min="1" placeholder="例如：200" required>
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary" data-close-modal="mixed-beads-modal">取消</button>
+      <button class="btn btn--primary" id="submit-mixed-beads">添加到购物车</button>
     </div>
   </div>
 </div>

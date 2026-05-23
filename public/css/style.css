@@ -448,6 +448,10 @@ ul, ol {
   border-left: 4px solid var(--success);
 }
 
+.stat-card--mixed {
+  border-left: 3px solid var(--color-accent, #8b5cf6);
+}
+
 /* ── Cards ─────────────────────────────────────────── */
 .card {
   background: var(--bg-secondary);
@@ -535,6 +539,18 @@ tr:hover td {
   min-width: 36px;
   min-height: 36px;
   font-size: 0.75rem;
+}
+
+/* Mixed beads special swatch */
+.color-swatch--mixed {
+  background: repeating-linear-gradient(
+    45deg,
+    #d4d4d4,
+    #d4d4d4 3px,
+    #a8a8a8 3px,
+    #a8a8a8 6px
+  ) !important;
+  color: #333 !important;
 }
 
 /* ── Forms ─────────────────────────────────────────── */

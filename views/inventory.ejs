@@ -24,6 +24,10 @@
         <div class="stat-card__value" id="stat-out-stock">--</div>
         <div class="stat-card__label">已耗尽</div>
       </div>
+      <div class="stat-card stat-card--mixed">
+        <div class="stat-card__value" id="stat-mixed-beads">--</div>
+        <div class="stat-card__label">混豆存量</div>
+      </div>
     </div>
 
     <div class="filter-bar" id="filter-bar">
@@ -38,6 +42,7 @@
         <button class="filter-bar__tag" data-series="G">G-棕</button>
         <button class="filter-bar__tag" data-series="H">H-灰</button>
         <button class="filter-bar__tag" data-series="M">M-莫兰迪</button>
+        <button class="filter-bar__tag" data-series="X">X-混豆</button>
       </div>
       <div class="filter-bar__search">
         <span class="filter-bar__search-icon">🔍</span>
@@ -228,6 +233,40 @@
       </div>
     </div>
   </div>
+
+  <div class="modal-overlay" id="mix-transfer-modal">
+  <div class="modal">
+    <div class="modal__header">
+      <h3 class="modal__title">倒入混豆</h3>
+      <button class="modal__close" data-close-modal="mix-transfer-modal">&times;</button>
+    </div>
+    <div class="modal__body">
+      <form id="mix-transfer-form">
+        <div class="form-group">
+          <label class="form-label">色号</label>
+          <input type="text" class="form-input" id="mix-transfer-code" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">当前库存</label>
+          <input type="text" class="form-input" id="mix-transfer-current" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">倒入数量</label>
+          <input type="number" class="form-input" id="mix-transfer-quantity" min="1" required>
+          <a href="#" id="mix-transfer-all" class="text-sm" style="margin-top: 4px; display: inline-block;">全部倒入</a>
+        </div>
+        <div class="form-group">
+          <label class="form-label">操作预览</label>
+          <div id="mix-transfer-preview" class="text-sm text-secondary"></div>
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary" data-close-modal="mix-transfer-modal">取消</button>
+      <button class="btn btn--primary" id="submit-mix-transfer">确认倒入</button>
+    </div>
+  </div>
+</div>
 
   <script src="/js/inventory.js"></script>
   <script src="/js/batch-purchase.js"></script>
