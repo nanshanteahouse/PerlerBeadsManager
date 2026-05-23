@@ -12,12 +12,13 @@ function getCart() {
   return cart.map(item => {
     const pattern = patterns.find(p => p.id === item.patternId);
     if (!pattern) {
-      return {
-        ...item,
-        beads: [],
-        colorCount: 0,
-        totalBeads: 0,
-      };
+      // Scatter item (e.g., mixed beads) — use own beads if present
+      if (item.beads && item.beads.length > 0) {
+        const colorCount = item.beads.length;
+        const totalBeads = item.beads.reduce((sum, b) => sum + (b.quantity || 0), 0);
+        return { ...item, beads: item.beads, colorCount, totalBeads };
+      }
+      return { ...item, beads: [], colorCount: 0, totalBeads: 0 };
     }
 
     const colorCount = pattern.beads ? pattern.beads.length : 0;
@@ -112,6 +113,32 @@ function clearCart() {
 }
 
 /**
+ * Add mixed beads to cart as a scatter (non-pattern) item
+ * @param {number} quantity - Estimated quantity of mixed beads needed
+ * @returns {Object} New cart item
+ */
+function addMixedBeads(quantity) {
+  if (!validator.isValidQuantity(quantity) || quantity < 1) {
+    throw new Error('Invalid quantity');
+  }
+
+  const cart = dataStore.readJSON('cart.json') || [];
+
+  const newItem = {
+    id: `cart_${uuidv4().replace(/-/g, '').substring(0, 12)}`,
+    patternId: null,
+    patternName: '混豆',
+    quantity: 1,
+    beads: [{ colorCode: 'MIX', quantity }],
+    addedAt: new Date().toISOString(),
+  };
+
+  cart.push(newItem);
+  dataStore.writeJSON('cart.json', cart);
+  return newItem;
+}
+
+/**
  * Calculate total demand for each color across all cart items
  * Returns summary with demand vs stock comparison
  */
@@ -149,6 +176,7 @@ function getDemandSummary() {
       const colorInfo = colorMap[entry.colorCode] || {};
       const shortfall = Math.max(0, entry.demand - entry.stock);
       const sufficient = entry.stock >= entry.demand;
+      const isMixed = entry.colorCode === 'MIX';
 
       return {
         colorCode: entry.colorCode,
@@ -156,8 +184,9 @@ function getDemandSummary() {
         hex: colorInfo.hex || '#888888',
         demand: entry.demand,
         stock: entry.stock,
-        shortfall,
-        sufficient,
+        shortfall: isMixed ? 0 : shortfall,
+        sufficient: isMixed ? true : sufficient,
+        isMixed,
       };
     })
     .sort((a, b) => a.colorCode.localeCompare(b.colorCode));
@@ -233,6 +262,7 @@ module.exports = {
   updateCartItem,
   removeCartItem,
   clearCart,
+  addMixedBeads,
   getDemandSummary,
   submitCart,
 };

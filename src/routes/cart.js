@@ -46,6 +46,17 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+router.post('/mixed-beads', (req, res) => {
+  try {
+    const { quantity } = req.body;
+    const item = cartService.addMixedBeads(quantity);
+    const demandSummary = cartService.getDemandSummary();
+    res.json({ item, demandSummary });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.post('/submit', (req, res) => {
   try {
     const result = cartService.submitCart();
