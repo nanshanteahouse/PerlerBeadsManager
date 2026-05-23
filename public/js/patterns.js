@@ -591,9 +591,7 @@
       submitForm(true);
     });
 
-    if (pattern) {
-      loadColorsForPicker();
-    }
+    loadColorsForPicker();
 
     renderBeadsTable();
     updateSummary();
