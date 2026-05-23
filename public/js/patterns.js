@@ -185,6 +185,7 @@
     var confirmCartBtn = document.getElementById('confirm-add-to-cart');
 
     var selectedPatternId = null;
+    var selectedPatternName = '';
 
     importBtn.addEventListener('click', function () {
       importForm.style.display = importForm.style.display === 'none' ? 'block' : 'none';
@@ -236,7 +237,7 @@
       fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patternId: selectedPatternId, quantity: qty })
+        body: JSON.stringify({ patternId: selectedPatternId, patternName: selectedPatternName, quantity: qty })
       })
         .then(function (res) {
           if (!res.ok) return res.json().then(function (d) { throw new Error(d.message); });
@@ -318,6 +319,7 @@
         fetch('/api/patterns/' + patternId)
           .then(function (res) { return res.json(); })
           .then(function (pattern) {
+            selectedPatternName = pattern.name;
             document.getElementById('cart-modal-pattern-name').textContent = pattern.name;
             document.getElementById('cart-quantity').value = '1';
             openModal('add-to-cart-modal');
