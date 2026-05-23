@@ -4,3 +4,5 @@ data/.backup/
 .env
 .DS_Store
 SPEC.md
+
+.sisyphus/
