@@ -44,6 +44,9 @@ function calculateDiff(hex, options = {}) {
   const results = [];
 
   for (const color of colors) {
+    // Skip mixed beads - no fixed color to compare
+    if (color.code === 'MIX') continue;
+
     // Get stock for this color
     const stock = inventory[color.code] || 0;
 

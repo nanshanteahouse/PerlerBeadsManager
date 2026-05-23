@@ -3,7 +3,7 @@
  */
 function isValidColorCode(code) {
   if (typeof code !== 'string') return false;
-  return /^[A-HM]\d{2}$/.test(code);
+  return /^([A-HM]\d{2}|MIX)$/.test(code);
 }
 
 /**
