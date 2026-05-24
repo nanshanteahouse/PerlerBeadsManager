@@ -19,16 +19,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Wrap page renders with layout
+// Wrap page renders with layout, inject real cart count
 const _render = app.response.render;
 app.response.render = function (view, options, callback) {
   const res = this;
   if (view === 'layout' || view === 'error' || (options && options._raw)) {
     return _render.call(res, view, options, callback);
   }
-  _render.call(res, view, options, function (err, html) {
+  // Provide actual cart item count from the data file
+  var cartData = readJSON('cart.json') || [];
+  var opts = Object.assign({}, options, { cartCount: cartData.length });
+  _render.call(res, view, opts, function (err, html) {
     if (err) return callback ? callback(err) : undefined;
-    _render.call(res, 'layout', Object.assign({}, options, { body: html }), callback);
+    _render.call(res, 'layout', Object.assign({}, opts, { body: html }), callback);
   });
 };
 
