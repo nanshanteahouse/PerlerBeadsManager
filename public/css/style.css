@@ -753,8 +753,8 @@ tr:hover td {
 /* ── Color Grid ────────────────────────────────────── */
 .color-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+  gap: 6px;
 }
 
 .color-grid__item {
@@ -767,9 +767,9 @@ tr:hover td {
   cursor: pointer;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
   user-select: none;
 }
 
@@ -1571,12 +1571,12 @@ tr:hover td {
   }
 
   .color-grid {
-    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+    gap: 5px;
   }
 
   .color-grid__item {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
 
   .page-title {
@@ -1637,7 +1637,7 @@ tr:hover td {
   }
 
   .color-grid {
-    grid-template-columns: repeat(auto-fill, minmax(52px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
     gap: 4px;
   }
 }
