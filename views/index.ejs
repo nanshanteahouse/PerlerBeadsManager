@@ -63,26 +63,39 @@
 <div class="card">
   <div class="card__header">
     <h2 class="card__title">最近图纸</h2>
-    <span class="text-sm text-secondary"><%= stats.totalPatterns %> 个图纸</span>
+    <a href="/patterns" class="btn btn--sm btn--ghost"><%= stats.totalPatterns %> 个图纸 →</a>
   </div>
 
   <% if (recentPatterns.length > 0) { %>
-  <div class="pattern-list">
-    <% recentPatterns.forEach(function(pattern) { %>
-    <div class="pattern-card">
-      <div class="pattern-card__header">
-        <span class="pattern-card__name">📄 <%= pattern.name %></span>
-        <span class="text-sm text-secondary"><%= pattern.beads.length %> 种色号 · <%= pattern.totalBeads.toLocaleString() %> 粒</span>
-      </div>
-      <div class="pattern-card__meta">
-        创建于 <%= new Date(pattern.createdAt).toLocaleDateString('zh-CN') %>
-      </div>
-      <div class="pattern-card__actions">
-        <a href="/patterns/<%= pattern.id %>/edit" class="btn btn--sm btn--secondary">编辑</a>
-        <a href="/patterns" class="btn btn--sm btn--ghost">查看全部 →</a>
-      </div>
-    </div>
-    <% }); %>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>图纸名称</th>
+          <th style="width:60px">色号</th>
+          <th style="width:80px">颗粒</th>
+          <th style="width:130px">库存</th>
+          <th style="width:85px">日期</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentPatterns.forEach(function(p) { %>
+        <tr>
+          <td><a href="/patterns/<%= p.id %>/edit" class="pattern-row__name">📄 <%= p.name %></a></td>
+          <td><%= p.beads.length %></td>
+          <td><%= p.totalBeads.toLocaleString() %></td>
+          <td>
+            <% if (p._stock.sufficient) { %>
+              <span class="text-success">✅ 充足</span>
+            <% } else { %>
+              <span class="text-danger">⚠️ 不足：<%= p._stock.insufficient.slice(0, 3).map(function(i) { return i.code + '(-' + i.shortfall + ')'; }).join(', ') %><% if (p._stock.insufficient.length > 3) { %> 等<%= p._stock.insufficient.length %>种<% } %></span>
+            <% } %>
+          </td>
+          <td class="text-secondary" style="font-size:0.8rem"><%= new Date(p.createdAt).toLocaleDateString('zh-CN') %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
   </div>
   <% } else { %>
   <div class="empty-state">

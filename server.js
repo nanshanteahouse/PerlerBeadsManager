@@ -107,6 +107,20 @@ app.get('/', (req, res) => {
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
 
+  recentPatterns.forEach(p => {
+    let sufficient = true;
+    const insufficient = [];
+    (p.beads || []).forEach(b => {
+      const stock = inventory[b.colorCode] || 0;
+      const shortfall = b.quantity - stock;
+      if (shortfall > 0) {
+        sufficient = false;
+        insufficient.push({ code: b.colorCode, shortfall });
+      }
+    });
+    p._stock = { sufficient, insufficient };
+  });
+
   res.render('index', {
     title: '仪表盘',
     currentPage: 'home',
