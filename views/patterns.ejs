@@ -23,11 +23,92 @@
   </form>
 </div>
 
-<div id="pattern-list" class="pattern-list">
-  <div class="empty-state">
-    <div class="empty-state__icon">📋</div>
-    <div class="empty-state__text">加载中...</div>
+<div class="stats-grid" id="pattern-stats" style="display:none">
+  <div class="stat-card">
+    <div class="stat-card__value" id="stat-total-patterns">0</div>
+    <div class="stat-card__label">图纸总数</div>
   </div>
+  <div class="stat-card">
+    <div class="stat-card__value" id="stat-color-types">0</div>
+    <div class="stat-card__label">涉及色号种类</div>
+  </div>
+  <div class="stat-card stat-card--danger">
+    <div class="stat-card__value" id="stat-insufficient">0</div>
+    <div class="stat-card__label">库存不足</div>
+  </div>
+  <div class="stat-card stat-card--action">
+    <button class="btn btn--sm btn--secondary" id="check-all-stock-btn">🔄 刷新库存状态</button>
+  </div>
+</div>
+
+<div class="filter-bar" id="pattern-filter-bar" style="display:none">
+  <div class="filter-bar__tags" id="stock-tags">
+    <button class="filter-bar__tag filter-bar__tag--active" data-stock="all">全部库存</button>
+    <button class="filter-bar__tag" data-stock="sufficient">库存充足</button>
+    <button class="filter-bar__tag" data-stock="insufficient">库存不足</button>
+  </div>
+  <div class="filter-bar__tags" id="series-tags">
+    <button class="filter-bar__tag filter-bar__tag--active" data-series="">全部</button>
+    <button class="filter-bar__tag" data-series="A">A</button>
+    <button class="filter-bar__tag" data-series="B">B</button>
+    <button class="filter-bar__tag" data-series="C">C</button>
+    <button class="filter-bar__tag" data-series="D">D</button>
+    <button class="filter-bar__tag" data-series="E">E</button>
+    <button class="filter-bar__tag" data-series="F">F</button>
+    <button class="filter-bar__tag" data-series="G">G</button>
+    <button class="filter-bar__tag" data-series="H">H</button>
+    <button class="filter-bar__tag" data-series="M">M</button>
+  </div>
+  <div class="filter-bar__search">
+    <span class="filter-bar__search-icon">🔍</span>
+    <input type="text" class="filter-bar__search-input" id="pattern-search" placeholder="搜索图纸名称或色号...">
+  </div>
+</div>
+
+<div id="pattern-loading" class="empty-state">
+  <div class="empty-state__icon">📋</div>
+  <div class="empty-state__text">加载中...</div>
+</div>
+
+<div id="pattern-empty" class="empty-state" style="display:none">
+  <div class="empty-state__icon">📋</div>
+  <div class="empty-state__text">暂无图纸</div>
+  <a href="/patterns/new" class="btn btn--primary">创建第一个图纸</a>
+</div>
+
+<div class="pattern-toolbar" id="pattern-toolbar" style="display:none">
+  <span class="pattern-toolbar__count" id="selection-count">已选 <strong>0</strong> 项</span>
+  <div class="flex gap-8">
+    <button class="btn btn--sm btn--danger" id="batch-delete-btn">删除所选</button>
+    <button class="btn btn--sm btn--secondary" id="batch-export-btn">批量导出</button>
+    <button class="btn btn--sm btn--secondary" id="batch-cart-btn">批量加入购物车</button>
+  </div>
+</div>
+
+<div id="pattern-table-wrapper" class="table-wrapper" style="display:none">
+  <table class="pattern-table" id="pattern-table">
+    <thead>
+      <tr>
+        <th style="width: 36px;"><input type="checkbox" id="select-all" title="全选"></th>
+        <th class="pattern-table__col-expand"></th>
+        <th class="pattern-table__col-name th-sortable" data-sort="name">图纸名称 <span class="sort-indicator" id="sort-name"></span></th>
+        <th class="pattern-table__col-count th-sortable" data-sort="colorCount" title="色号种类数">色号 <span class="sort-indicator" id="sort-colorCount"></span></th>
+        <th class="pattern-table__col-beads th-sortable" data-sort="totalBeads" title="总颗粒数">总颗粒 <span class="sort-indicator" id="sort-totalBeads"></span></th>
+        <th class="pattern-table__col-board">底板</th>
+        <th class="pattern-table__col-stock">库存状态</th>
+        <th class="pattern-table__col-date th-sortable" data-sort="createdAt">创建日期 <span class="sort-indicator" id="sort-createdAt"></span></th>
+        <th class="pattern-table__col-actions">操作</th>
+      </tr>
+    </thead>
+    <tbody id="pattern-tbody">
+    </tbody>
+  </table>
+</div>
+
+<div class="pagination" id="pagination" style="display:none">
+  <button class="pagination__btn" id="prev-page" disabled>上一页</button>
+  <span class="pagination__info" id="page-info">第 1 / 1 页</span>
+  <button class="pagination__btn" id="next-page" disabled>下一页</button>
 </div>
 
 <div id="add-to-cart-modal" class="modal-overlay">

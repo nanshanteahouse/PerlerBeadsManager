@@ -93,4 +93,13 @@ router.post('/import', (req, res) => {
   }
 });
 
+router.post('/batch-delete', (req, res) => {
+  try {
+    const result = patternService.batchDelete(req.body.ids);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 module.exports = router;

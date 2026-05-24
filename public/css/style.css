@@ -452,6 +452,13 @@ ul, ol {
   border-left: 3px solid var(--color-accent, #8b5cf6);
 }
 
+.stat-card--action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: none;
+}
+
 /* ── Cards ─────────────────────────────────────────── */
 .card {
   background: var(--bg-secondary);
@@ -1076,7 +1083,230 @@ tr:hover td {
   border: 1px solid var(--success);
 }
 
-/* ── Pattern list ──────────────────────────────────── */
+/* ── Pattern table ─────────────────────────────────── */
+.pattern-table th {
+  white-space: nowrap;
+}
+
+.pattern-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0 8px;
+}
+
+.pattern-toolbar__count {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.pattern-toolbar__count strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.pattern-table__col-expand {
+  width: 32px;
+  padding: 0 4px !important;
+}
+
+.pattern-table__col-expand .pattern-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.pattern-table__col-expand .pattern-expand-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+}
+
+.pattern-table__col-expand .pattern-expand-btn--expanded {
+  transform: rotate(90deg);
+  color: var(--accent);
+}
+
+.pattern-table__col-name {
+  min-width: 140px;
+}
+
+.pattern-row__name {
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.pattern-row__name:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.pattern-table__col-count {
+  width: 60px;
+  text-align: center;
+}
+
+.pattern-table__col-beads {
+  width: 85px;
+  text-align: right;
+}
+
+.pattern-table__col-board {
+  width: 75px;
+  text-align: center;
+}
+
+.pattern-table__col-stock {
+  width: 145px;
+}
+
+.pattern-table__col-date {
+  width: 90px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.pattern-table__col-actions {
+  width: 120px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pattern-table__col-actions .btn--xs {
+  margin-left: 2px;
+}
+
+.pattern-table td {
+  padding: 6px 8px;
+  vertical-align: middle;
+}
+
+/* Expanded detail row */
+.pattern-detail-row td {
+  padding: 0;
+}
+
+.pattern-detail-row--open td {
+  padding: 0;
+}
+
+.pattern-detail-content {
+  padding: 12px 16px 12px 40px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pattern-detail-content .detail-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pattern-detail-content .detail-section {
+  min-width: 0;
+}
+
+.pattern-detail-content .detail-section__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+
+.pattern-detail-content .detail-beads-table {
+  width: auto;
+  min-width: 320px;
+  font-size: 0.8rem;
+}
+
+.pattern-detail-content .detail-beads-table th {
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.pattern-detail-content .detail-beads-table td {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.8rem;
+}
+
+.pattern-detail-content .detail-beads-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.pattern-detail-content .detail-beads-table .stock-ok {
+  color: var(--success);
+}
+
+.pattern-detail-content .detail-beads-table .stock-low {
+  color: var(--warning);
+}
+
+.pattern-detail-content .detail-beads-table .stock-out {
+  color: var(--danger);
+}
+
+.pattern-detail-content .detail-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+/* Compact stock status in table row */
+.pattern-row__stock {
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.pattern-row__stock .stock-ok {
+  color: var(--success);
+}
+
+.pattern-row__stock .stock-warn {
+  color: var(--warning);
+}
+
+.pattern-row__stock .stock-fail {
+  color: var(--danger);
+}
+
+.pattern-row__stock .spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--border-light);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Homepage recent patterns (card) ──────────────── */
 .pattern-list {
   display: flex;
   flex-direction: column;
@@ -1217,6 +1447,40 @@ tr:hover td {
 .empty-state__text {
   font-size: 1rem;
   margin-bottom: 16px;
+}
+
+/* ── Pagination ────────────────────────────────────── */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 8px;
+}
+
+.pagination__btn {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.pagination__btn:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pagination__info {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 /* ── Helpers ───────────────────────────────────────── */

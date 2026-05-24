@@ -191,12 +191,27 @@ function importPattern(jsonData) {
   return createPattern(data);
 }
 
+/**
+ * Batch delete patterns by ids
+ */
+function batchDelete(ids) {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    throw new Error('请提供要删除的图纸ID列表');
+  }
+  const patterns = dataStore.readJSON(PATTERNS_FILE) || [];
+  const remaining = patterns.filter(p => !ids.includes(p.id));
+  const deleted = patterns.length - remaining.length;
+  dataStore.writeJSON(PATTERNS_FILE, remaining);
+  return { deleted };
+}
+
 module.exports = {
   getPatterns,
   getPatternById,
   createPattern,
   updatePattern,
   deletePattern,
+  batchDelete,
   checkStock,
   importPattern
 };
