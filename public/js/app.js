@@ -62,14 +62,20 @@
   /* ── Cart Badge ───────────────────────────────────── */
   function updateCartBadge(count) {
     const badge = document.getElementById('cart-badge');
-    if (badge) {
-      if (count > 0) {
-        badge.textContent = count;
-        badge.style.display = '';
-      } else {
-        badge.style.display = 'none';
-      }
-    }
+    if (!badge) return;
+    count = Math.max(0, parseInt(count, 10) || 0);
+    badge.textContent = count;
+    badge.classList.toggle('navbar__badge--zero', count === 0);
+  }
+
+  function fetchCartBadge() {
+    apiFetch('/api/cart')
+      .then(function (data) {
+        if (data && Array.isArray(data.cart)) {
+          updateCartBadge(data.cart.length);
+        }
+      })
+      .catch(function () {});
   }
 
   /* ── Color Utilities ──────────────────────────────── */
@@ -230,6 +236,12 @@
         }
       });
     }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fetchCartBadge);
+  } else {
+    fetchCartBadge();
   }
 
   /* ── Exports ──────────────────────────────────────── */

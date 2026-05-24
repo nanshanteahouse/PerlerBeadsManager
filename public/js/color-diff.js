@@ -13,15 +13,10 @@
   function updateSwatch(hex) {
     if (!hex || !/^#?[0-9A-Fa-f]{6}$/.test(hex)) {
       targetSwatch.style.background = '#cccccc';
-      targetSwatch.style.color = '#000000';
-      targetSwatch.textContent = '?';
       return;
     }
     var cleanHex = hex.startsWith('#') ? hex : '#' + hex;
     targetSwatch.style.background = cleanHex;
-    var textColor = PBM.getTextColor(cleanHex);
-    targetSwatch.style.color = textColor;
-    targetSwatch.textContent = cleanHex.toUpperCase().replace('#', '');
   }
 
   function fetchColorsAndPopulate() {

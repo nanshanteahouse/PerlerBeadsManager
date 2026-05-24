@@ -1,6 +1,7 @@
 <div class="page-header">
   <h1 class="page-title">图纸管理</h1>
-  <div class="flex gap-8">
+  <div class="flex gap-8 items-center">
+    <button class="btn btn--secondary" id="check-all-stock-btn">🔄 刷新库存状态</button>
     <button class="btn btn--secondary" id="import-btn">
       <span>📥</span> 导入JSON
     </button>
@@ -36,9 +37,7 @@
     <div class="stat-card__value" id="stat-insufficient">0</div>
     <div class="stat-card__label">库存不足</div>
   </div>
-  <div class="stat-card stat-card--action">
-    <button class="btn btn--sm btn--secondary" id="check-all-stock-btn">🔄 刷新库存状态</button>
-  </div>
+
 </div>
 
 <div class="filter-bar" id="pattern-filter-bar" style="display:none">
@@ -89,7 +88,7 @@
   <table class="pattern-table" id="pattern-table">
     <thead>
       <tr>
-        <th style="width: 36px;"><input type="checkbox" id="select-all" title="全选"></th>
+        <th class="pattern-table__col-check"><input type="checkbox" id="select-all" title="全选"></th>
         <th class="pattern-table__col-expand"></th>
         <th class="pattern-table__col-name th-sortable" data-sort="name">图纸名称 <span class="sort-indicator" id="sort-name"></span></th>
         <th class="pattern-table__col-count th-sortable" data-sort="colorCount" title="色号种类数">色号 <span class="sort-indicator" id="sort-colorCount"></span></th>

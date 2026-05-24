@@ -217,6 +217,10 @@ ul, ol {
   line-height: 1;
 }
 
+.navbar__badge--zero {
+  background: var(--text-tertiary);
+}
+
 .navbar__theme-btn {
   background: none;
   border: 1px solid var(--border-color);
@@ -1086,6 +1090,12 @@ tr:hover td {
 /* ── Pattern table ─────────────────────────────────── */
 .pattern-table th {
   white-space: nowrap;
+}
+
+.pattern-table__col-check {
+  width: 36px;
+  padding: 6px 8px;
+  text-align: center;
 }
 
 .pattern-toolbar {

@@ -19,7 +19,7 @@
         <li><a href="/colors" class="navbar__link <%= currentPage === 'colors' ? 'navbar__link--active' : '' %>">色号</a></li>
         <li><a href="/inventory" class="navbar__link <%= currentPage === 'inventory' ? 'navbar__link--active' : '' %>">库存</a></li>
         <li><a href="/patterns" class="navbar__link <%= currentPage === 'patterns' ? 'navbar__link--active' : '' %>">图纸</a></li>
-        <li><a href="/cart" class="navbar__link <%= currentPage === 'cart' ? 'navbar__link--active' : '' %>">购物车<span class="navbar__badge" id="cart-badge" style="display:none">0</span></a></li>
+        <li><a href="/cart" class="navbar__link <%= currentPage === 'cart' ? 'navbar__link--active' : '' %>">购物车<span class="navbar__badge navbar__badge--zero" id="cart-badge">0</span></a></li>
         <li><a href="/color-diff" class="navbar__link <%= currentPage === 'color-diff' ? 'navbar__link--active' : '' %>">色差计算器</a></li>
       </ul>
       <button class="navbar__theme-btn" id="theme-toggle" aria-label="切换主题" title="切换主题">☀️</button>

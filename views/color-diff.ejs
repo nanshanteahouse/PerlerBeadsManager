@@ -3,9 +3,7 @@
 </div>
 
 <div class="diff-target">
-  <div class="diff-target__swatch" id="target-swatch" style="background: <%= preselectedHex || '#cccccc' %>; color: <%= preselectedHex ? (function(h){ var c=h.replace('#','');var vals=c.match(/\w\w/g);if(!vals)return'#000';var rgb=vals.map(function(x){var v=parseInt(x,16)/255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4)});var lum=0.2126*rgb[0]+0.7152*rgb[1]+0.0722*rgb[2];return lum>0.179?'#000':'#fff'; })(preselectedHex) : '#000' %>">
-    <%= preselectedHex ? preselectedHex.toUpperCase().replace('#', '') : '?' %>
-  </div>
+  <div class="diff-target__swatch" id="target-swatch" style="background: <%= preselectedHex || '#cccccc' %>;"></div>
   <div class="diff-target__input-group">
     <div class="form-inline">
       <input type="text" id="hex-input" class="form-input form-input--inline" placeholder="FF6B35" value="<%= preselectedHex ? preselectedHex.replace('#', '') : '' %>" maxlength="6">

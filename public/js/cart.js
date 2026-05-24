@@ -104,7 +104,7 @@
         <div class="cart-summary__item">
           <span class="flex items-center gap-8">
             <span class="color-swatch color-swatch--sm" style="background:${entry.hex};color:${PBM.getTextColor(entry.hex)}">${entry.colorCode}</span>
-            <span>${escapeHtml(entry.name || entry.colorCode)}: ${entry.demand} - ${entry.stock} = </span>
+            <span>${escapeHtml(entry.name || entry.colorCode)}: 需 <strong>${entry.demand.toLocaleString()}</strong> 粒, 存 <strong>${entry.stock.toLocaleString()}</strong> 粒 →</span>
           </span>
           <span class="${statusClass}">${statusText}</span>
         </div>
