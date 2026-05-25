@@ -21,8 +21,8 @@
   }
 
   function updateCartBadge() {
-    PBM.apiFetch('/api/cart').then(function (cart) {
-      var count = Array.isArray(cart) ? cart.length : 0;
+    PBM.apiFetch('/api/cart').then(function (data) {
+      var count = (data && Array.isArray(data.cart)) ? data.cart.length : 0;
       if (window.PBM && window.PBM.updateCartBadge) {
         window.PBM.updateCartBadge(count);
       }
