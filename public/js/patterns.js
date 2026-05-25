@@ -931,22 +931,25 @@
     }
 
     function loadColorsForPicker() {
-      fetch('/api/colors')
-        .then(function (res) { return res.json(); })
-        .then(function (colors) {
-          window.__COLORS_DATA__ = colors;
+      Promise.all([
+        fetch('/api/colors').then(function (res) { return res.json(); }),
+        fetch('/api/inventory').then(function (res) { return res.json(); })
+      ])
+        .then(function (results) {
+          window.__COLORS_DATA__ = results[0];
+
+          var invMap = {};
+          (results[1] || []).forEach(function (item) {
+            invMap[item.code] = item.quantity || 0;
+          });
+          window.__INVENTORY_DATA__ = invMap;
+
           renderColorPickerGrid();
+          renderBeadsTable();
+          updateSummary();
         })
         .catch(function () {
           window.__COLORS_DATA__ = [];
-        });
-      fetch('/api/inventory')
-        .then(function (res) { return res.json(); })
-        .then(function (inv) {
-          window.__INVENTORY_DATA__ = inv;
-          renderBeadsTable();
-        })
-        .catch(function () {
           window.__INVENTORY_DATA__ = {};
         });
     }
@@ -1132,9 +1135,6 @@
     });
 
     loadColorsForPicker();
-
-    renderBeadsTable();
-    updateSummary();
   }
 
   function start() {
