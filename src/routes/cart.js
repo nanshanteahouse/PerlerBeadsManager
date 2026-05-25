@@ -46,10 +46,10 @@ router.delete('/:id', (req, res) => {
   }
 });
 
-router.post('/mixed-beads', (req, res) => {
+router.post('/manual-adjustment', (req, res) => {
   try {
-    const { quantity } = req.body;
-    const item = cartService.addMixedBeads(quantity);
+    const { beads, note } = req.body;
+    const item = cartService.addManualAdjustment(beads, note);
     const demandSummary = cartService.getDemandSummary();
     res.json({ item, demandSummary });
   } catch (err) {

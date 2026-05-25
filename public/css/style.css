@@ -1441,6 +1441,111 @@ tr:hover td {
 
 .cart-summary__status--ok { color: var(--success); }
 .cart-summary__status--fail { color: var(--danger); }
+.cart-summary__status--surplus { color: var(--accent); }
+
+.cart-summary__item--surplus {
+  background: var(--accent);
+  background: rgba(0, 122, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 4px 0;
+}
+
+/* ── Adjustment Modal ──────────────────────────────── */
+.adjustment-table-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.adjustment-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.adjustment-table th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-secondary);
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1;
+}
+
+.adjustment-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+
+.adjustment-table tr:last-child td {
+  border-bottom: none;
+}
+
+.adjustment-row__color {
+  width: 100%;
+  min-width: 160px;
+}
+
+.adjustment-row__quantity {
+  width: 100%;
+  min-width: 100px;
+}
+
+.adjustment-row__delete {
+  color: var(--text-tertiary);
+  font-size: 1rem;
+  padding: 2px 6px;
+}
+
+.adjustment-row__delete:hover:not(:disabled) {
+  color: var(--danger);
+}
+
+/* ── Cart Adjustment Row ───────────────────────────── */
+.cart-adjustment-row td {
+  padding: 0;
+}
+
+.adjustment-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.adjustment-summary:hover {
+  background: var(--bg-tertiary);
+}
+
+.adjustment-summary__toggle {
+  flex-shrink: 0;
+  width: 18px;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  transition: transform 0.15s;
+}
+
+.adjustment-details {
+  padding: 0 12px 8px 38px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.adjustment-bead-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  font-size: 0.85rem;
+}
 
 /* ── Empty State ───────────────────────────────────── */
 .empty-state {

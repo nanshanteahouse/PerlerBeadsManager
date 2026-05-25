@@ -9,6 +9,7 @@
     div.textContent = str;
     return div.innerHTML;
   }
+  var escHtml = escapeHtml;
 
   function renderCart() {
     const tbody = document.getElementById('cart-tbody');
@@ -28,54 +29,94 @@
     PBM.updateCartBadge(cartData.cart.length);
 
     tbody.innerHTML = cartData.cart.map(item => {
-      const isMixedBeads = !item.patternId;
-      const sufficient = isItemSufficient(item);
-      const statusClass = sufficient ? 'text-success' : 'text-danger';
-      const statusText = sufficient ? '✅ 充足' : '⚠️ 不足';
-      const nameDisplay = isMixedBeads
-        ? '♻️ ' + escapeHtml(item.patternName)
-        : '📄 ' + escapeHtml(item.patternName);
-
-      if (isMixedBeads) {
-        return `
-          <tr data-item-id="${item.id}">
-            <td data-label="图纸名称">${nameDisplay}</td>
-            <td data-label="混豆数量">
-              <div class="form-inline items-center">
-                <button class="btn btn--xs btn--secondary qty-dec" data-id="${item.id}">-</button>
-                <span class="font-mono" style="min-width:32px;text-align:center">${item.quantity}</span>
-                <button class="btn btn--xs btn--secondary qty-inc" data-id="${item.id}">+</button>
-              </div>
-            </td>
-            <td data-label="涉及色号">-</td>
-            <td data-label="状态"><span class="${statusClass}">${statusText}</span></td>
-            <td data-label="操作">
-              <button class="btn btn--xs btn--ghost remove-item" data-id="${item.id}">移除</button>
-            </td>
-          </tr>
-        `;
+      if (item.type === 'manual-adjustment') {
+        return renderAdjustmentRow(item);
       }
-
-      return `
-        <tr data-item-id="${item.id}">
-          <td data-label="图纸名称">${nameDisplay}</td>
-          <td data-label="图案件数">
-            <div class="form-inline items-center">
-              <button class="btn btn--xs btn--secondary qty-dec" data-id="${item.id}">-</button>
-              <span class="font-mono" style="min-width:32px;text-align:center">${item.quantity}</span>
-              <button class="btn btn--xs btn--secondary qty-inc" data-id="${item.id}">+</button>
-            </div>
-          </td>
-          <td data-label="涉及色号">${item.colorCount || 0} 种</td>
-          <td data-label="状态"><span class="${statusClass}">${statusText}</span></td>
-          <td data-label="操作">
-            <button class="btn btn--xs btn--ghost remove-item" data-id="${item.id}">移除</button>
-          </td>
-        </tr>
-      `;
+      return renderPatternRow(item);
     }).join('');
 
     renderDemandSummary(summaryItems);
+  }
+
+  function renderPatternRow(item) {
+    const isLegacyMixed = !item.patternId;
+    const sufficient = isItemSufficient(item);
+    const statusClass = sufficient ? 'text-success' : 'text-danger';
+    const statusText = sufficient ? '✅ 充足' : '⚠️ 不足';
+    const nameDisplay = isLegacyMixed
+      ? '♻️ ' + escapeHtml(item.patternName || '混豆')
+      : '📄 ' + escapeHtml(item.patternName);
+    const qtyColLabel = isLegacyMixed ? '混豆数量' : '图案件数';
+
+    return `
+      <tr data-item-id="${item.id}">
+        <td data-label="图纸名称">${nameDisplay}</td>
+        <td data-label="${qtyColLabel}">
+          <div class="form-inline items-center">
+            <button class="btn btn--xs btn--secondary qty-dec" data-id="${item.id}">-</button>
+            <span class="font-mono" style="min-width:32px;text-align:center">${item.quantity}</span>
+            <button class="btn btn--xs btn--secondary qty-inc" data-id="${item.id}">+</button>
+          </div>
+        </td>
+        <td data-label="涉及色号">${item.colorCount || 0} 种</td>
+        <td data-label="状态"><span class="${statusClass}">${statusText}</span></td>
+        <td data-label="操作">
+          <button class="btn btn--xs btn--ghost remove-item" data-id="${item.id}">移除</button>
+        </td>
+      </tr>
+    `;
+  }
+
+  function renderAdjustmentRow(item) {
+    const beadCount = item.beads ? item.beads.length : 0;
+    const totalQty = item.beads
+      ? item.beads.reduce(function (sum, b) { return sum + b.quantity; }, 0)
+      : 0;
+    const totalSign = totalQty >= 0 ? '+' : '';
+    const noteText = item.note ? ' — ' + escapeHtml(item.note) : '';
+
+    var beadsHtml = '';
+    if (item.beads && item.beads.length > 0) {
+      beadsHtml = item.beads.map(function (b) {
+        var hex = '#888888';
+        var name = b.colorCode;
+        var sign = b.quantity >= 0 ? '+' : '';
+        var qtyClass = b.quantity >= 0 ? 'text-success' : 'text-danger';
+
+        var colorInfo = getColorInfo(b.colorCode);
+        if (colorInfo) {
+          hex = colorInfo.hex || hex;
+          name = colorInfo.name || b.colorCode;
+        }
+        if (b.colorCode === 'MIX') {
+          name = '混豆';
+          hex = '#a0a0a0';
+        }
+
+        return '<div class="adjustment-bead-row">' +
+          '<span class="color-swatch color-swatch--sm" style="background:' + hex + ';color:' + PBM.getTextColor(hex) + '">' + b.colorCode + '</span>' +
+          '<span class="text-sm">' + name + '</span>' +
+          '<span class="font-mono ' + qtyClass + '">' + sign + b.quantity.toLocaleString() + '</span>' +
+        '</div>';
+      }).join('');
+    }
+
+    return `
+      <tr data-item-id="${item.id}" class="cart-adjustment-row">
+        <td data-label="名称" colspan="5">
+          <div class="adjustment-summary">
+            <span class="adjustment-summary__toggle" data-id="${item.id}">▶</span>
+            <span>📝 ${escapeHtml(item.patternName)} — ${beadCount} 项调整 | 净变化 ${totalSign}${totalQty.toLocaleString()}${noteText}</span>
+          </div>
+          <div class="adjustment-details" id="adj-detail-${item.id}" style="display:none">
+            ${beadsHtml}
+          </div>
+        </td>
+        <td data-label="操作">
+          <button class="btn btn--xs btn--ghost remove-item" data-id="${item.id}">移除</button>
+        </td>
+      </tr>
+    `;
   }
 
   function isItemSufficient(item) {
@@ -95,6 +136,22 @@
     }
 
     container.innerHTML = cartData.demandSummary.map(entry => {
+      const hasNegative = entry.demand < 0;
+      const surplus = hasNegative ? -entry.demand : 0;
+      const effective = hasNegative ? 0 : entry.demand;
+
+      if (hasNegative) {
+        return `
+          <div class="cart-summary__item cart-summary__item--surplus">
+            <span class="flex items-center gap-8">
+              <span class="color-swatch color-swatch--sm" style="background:${entry.hex};color:${PBM.getTextColor(entry.hex)}">${entry.colorCode}</span>
+              <span>${escapeHtml(entry.name || entry.colorCode)}: 净冲抵 <strong>${surplus.toLocaleString()}</strong> 粒, 库存 <strong>${entry.stock.toLocaleString()}</strong> →</span>
+            </span>
+            <span class="cart-summary__status--surplus">🔵 冲抵</span>
+          </div>
+        `;
+      }
+
       const statusClass = entry.sufficient ? 'cart-summary__status--ok' : 'cart-summary__status--fail';
       const statusText = entry.sufficient
         ? '✅ 充足'
@@ -104,7 +161,7 @@
         <div class="cart-summary__item">
           <span class="flex items-center gap-8">
             <span class="color-swatch color-swatch--sm" style="background:${entry.hex};color:${PBM.getTextColor(entry.hex)}">${entry.colorCode}</span>
-            <span>${escapeHtml(entry.name || entry.colorCode)}: 需 <strong>${entry.demand.toLocaleString()}</strong> 粒, 存 <strong>${entry.stock.toLocaleString()}</strong> 粒 →</span>
+            <span>${escapeHtml(entry.name || entry.colorCode)}: 需 <strong>${effective.toLocaleString()}</strong> 粒, 存 <strong>${entry.stock.toLocaleString()}</strong> 粒 →</span>
           </span>
           <span class="${statusClass}">${statusText}</span>
         </div>
@@ -140,6 +197,9 @@
   async function fetchCart() {
     try {
       cartData = await PBM.apiFetch('/api/cart');
+      if (colorsList.length === 0) {
+        colorsList = await PBM.apiFetch('/api/colors');
+      }
       renderCart();
     } catch (err) {
       PBM.showToast(err.message, 'error');
@@ -192,6 +252,149 @@
     }
   }
 
+  var adjustmentRows = [];
+  var colorsList = [];
+
+  function getColorInfo(code) {
+    for (var i = 0; i < colorsList.length; i++) {
+      if (colorsList[i].code === code) return colorsList[i];
+    }
+    return null;
+  }
+
+  async function openAdjustmentModal() {
+    try {
+      colorsList = await PBM.apiFetch('/api/colors');
+      adjustmentRows = [{ colorCode: '', quantity: '' }];
+      renderAdjustmentRows();
+      PBM.openModal('adjustment-modal');
+    } catch (err) {
+      PBM.showToast('加载色号失败: ' + err.message, 'error');
+    }
+  }
+
+  function addAdjustmentRow() {
+    if (adjustmentRows.length >= 50) {
+      PBM.showToast('最多添加 50 项调整', 'warning');
+      return;
+    }
+    adjustmentRows.push({ colorCode: '', quantity: '' });
+    renderAdjustmentRows();
+  }
+
+  function buildColorOptions(selectedCode) {
+    var codes = colorsList.slice().sort(function (a, b) {
+      return a.code < b.code ? -1 : a.code > b.code ? 1 : 0;
+    });
+    var options = codes.map(function (c) {
+      var selected = c.code === selectedCode ? ' selected' : '';
+      return '<option value="' + escAttr(c.code) + '" data-hex="' + (c.hex || '#cccccc') + '"' + selected + '>' +
+        c.code + ' - ' + escHtml(c.name || '未命名') + '</option>';
+    }).join('');
+    var mixSelected = selectedCode === 'MIX' ? ' selected' : '';
+    return '<option value="">选择色号...</option>' +
+      '<option value="MIX" data-hex="#a0a0a0"' + mixSelected + '>★ MIX - 混豆</option>' +
+      options;
+  }
+
+  function renderAdjustmentRows() {
+    var tbody = document.getElementById('adjustment-tbody');
+    if (!tbody) return;
+
+    if (adjustmentRows.length === 0) {
+      adjustmentRows.push({ colorCode: '', quantity: '' });
+    }
+
+    tbody.innerHTML = adjustmentRows.map(function (row, index) {
+      return '<tr class="adjustment-form-row" data-index="' + index + '">' +
+        '<td>' +
+          '<select class="form-select adjustment-row__color" data-index="' + index + '" data-field="colorCode">' +
+            buildColorOptions(row.colorCode) +
+          '</select>' +
+        '</td>' +
+        '<td>' +
+          '<input type="number" class="form-input adjustment-row__quantity" ' +
+            'data-index="' + index + '" data-field="quantity" ' +
+            'value="' + (row.quantity !== undefined && row.quantity !== '' ? row.quantity : '') + '" ' +
+            'placeholder="±数量" step="1">' +
+        '</td>' +
+        '<td>' +
+          '<button class="btn btn--xs btn--ghost adjustment-row__delete" data-index="' + index + '" ' +
+            (adjustmentRows.length <= 1 ? 'disabled' : '') + '>✕</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+
+    bindAdjustmentRowEvents();
+  }
+
+  function bindAdjustmentRowEvents() {
+    var tbody = document.getElementById('adjustment-tbody');
+    if (!tbody) return;
+
+    tbody.querySelectorAll('.adjustment-row__color, .adjustment-row__quantity').forEach(function (input) {
+      input.addEventListener('change', handleAdjustmentFieldChange);
+    });
+
+    tbody.querySelectorAll('.adjustment-row__delete').forEach(function (btn) {
+      btn.addEventListener('click', handleAdjustmentRowDelete);
+    });
+  }
+
+  function handleAdjustmentFieldChange(e) {
+    var index = parseInt(e.target.dataset.index, 10);
+    var field = e.target.dataset.field;
+    var value = e.target.value;
+
+    if (field === 'quantity') {
+      value = value === '' ? '' : parseInt(value, 10);
+    }
+
+    if (index >= 0 && index < adjustmentRows.length) {
+      adjustmentRows[index][field] = value;
+    }
+  }
+
+  function handleAdjustmentRowDelete(e) {
+    var index = parseInt(e.target.dataset.index, 10);
+    if (adjustmentRows.length <= 1) return;
+    adjustmentRows.splice(index, 1);
+    renderAdjustmentRows();
+  }
+
+  async function submitAdjustment() {
+    var beads = adjustmentRows.filter(function (row) {
+      return row.colorCode && row.quantity !== '' && row.quantity !== 0;
+    }).map(function (row) {
+      return { colorCode: row.colorCode, quantity: row.quantity };
+    });
+
+    if (beads.length === 0) {
+      PBM.showToast('请至少填写一个有效的色号和数量', 'error');
+      return;
+    }
+
+    var note = document.getElementById('adjustment-note').value.trim();
+
+    try {
+      await PBM.apiFetch('/api/cart/manual-adjustment', {
+        method: 'POST',
+        body: JSON.stringify({ beads: beads, note: note }),
+      });
+      PBM.closeModal('adjustment-modal');
+      document.getElementById('adjustment-note').value = '';
+      PBM.showToast('用量调整已添加到购物车', 'success');
+      await fetchCart();
+    } catch (err) {
+      PBM.showToast(err.message, 'error');
+    }
+  }
+
+  function escAttr(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/"/g, '&quot;');
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     fetchCart();
 
@@ -228,32 +431,30 @@
       });
     });
 
-    // Mixed beads modal
-    document.getElementById('add-mixed-beads-btn').addEventListener('click', function () {
-      PBM.openModal('mixed-beads-modal');
-    });
-
-    document.getElementById('submit-mixed-beads').addEventListener('click', function () {
-      var qty = parseInt(document.getElementById('mixed-beads-quantity').value, 10);
-      if (!qty || qty <= 0) {
-        PBM.showToast('请输入有效数量', 'error');
+    // Toggle adjustment detail expand/collapse
+    document.getElementById('cart-tbody').addEventListener('click', function (e) {
+      const toggle = e.target.closest('.adjustment-summary__toggle');
+      if (toggle) {
+        const id = toggle.dataset.id;
+        const detail = document.getElementById('adj-detail-' + id);
+        if (detail) {
+          const isOpen = detail.style.display !== 'none';
+          detail.style.display = isOpen ? 'none' : 'block';
+          toggle.textContent = isOpen ? '▶' : '▼';
+        }
         return;
       }
+    });
 
-      PBM.apiFetch('/api/cart/mixed-beads', {
-        method: 'POST',
-        body: JSON.stringify({ quantity: qty }),
-      })
-        .then(function (result) {
-          PBM.closeModal('mixed-beads-modal');
-          document.getElementById('mixed-beads-quantity').value = '';
-          PBM.showToast('混豆已添加到购物车', 'success');
-          // Refresh cart list
-          fetchCart();
-        })
-        .catch(function (err) {
-          PBM.showToast(err.message, 'error');
-        });
+    // Adjustment modal
+    document.getElementById('add-adjustment-btn').addEventListener('click', openAdjustmentModal);
+
+    document.getElementById('submit-adjustment').addEventListener('click', submitAdjustment);
+
+    document.getElementById('adjustment-modal').addEventListener('click', function (e) {
+      if (e.target.id === 'add-adjustment-row-btn') {
+        addAdjustmentRow();
+      }
     });
   });
 })();

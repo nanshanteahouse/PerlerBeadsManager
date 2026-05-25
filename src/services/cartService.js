@@ -113,23 +113,35 @@ function clearCart() {
 }
 
 /**
- * Add mixed beads to cart as a scatter (non-pattern) item
- * @param {number} quantity - Estimated quantity of mixed beads needed
+ * Add manual adjustment item to cart (replaces old addMixedBeads)
+ * @param {Array} beads - Array of { colorCode, quantity } (quantity can be positive or negative)
+ * @param {string} [note] - Optional note for the adjustment
  * @returns {Object} New cart item
  */
-function addMixedBeads(quantity) {
-  if (!validator.isValidQuantity(quantity) || quantity < 1) {
-    throw new Error('Invalid quantity');
+function addManualAdjustment(beads, note) {
+  if (!Array.isArray(beads) || beads.length === 0) {
+    throw new Error('At least one bead entry is required');
   }
+
+  beads.forEach(b => {
+    if (!validator.isValidColorCode(b.colorCode)) {
+      throw new Error(`Invalid color code: ${b.colorCode}`);
+    }
+    if (!Number.isSafeInteger(b.quantity) || b.quantity === 0) {
+      throw new Error(`Invalid quantity for ${b.colorCode}: must be non-zero integer`);
+    }
+  });
 
   const cart = dataStore.readJSON('cart.json') || [];
 
   const newItem = {
-    id: `cart_${uuidv4().replace(/-/g, '').substring(0, 12)}`,
+    id: `cart_adj_${uuidv4().replace(/-/g, '').substring(0, 12)}`,
     patternId: null,
-    patternName: '混豆',
+    type: 'manual-adjustment',
+    patternName: '用量调整',
     quantity: 1,
-    beads: [{ colorCode: 'MIX', quantity }],
+    beads,
+    note: note || '',
     addedAt: new Date().toISOString(),
   };
 
@@ -208,14 +220,19 @@ function submitCart() {
   const transactions = dataStore.readJSON('transactions.json') || [];
   const today = new Date().toISOString().split('T')[0];
 
-  // Deduct inventory and create consumption transactions
+  // Deduct inventory and create transactions
   demandSummary.forEach(entry => {
     const newStock = (inventory[entry.colorCode] || 0) - entry.demand;
     inventory[entry.colorCode] = newStock;
 
+    const hasManualAdjustment = cart.some(item =>
+      item.type === 'manual-adjustment' && item.beads &&
+      item.beads.some(b => b.colorCode === entry.colorCode)
+    );
+
     const transaction = {
       id: `txn_${uuidv4().replace(/-/g, '').substring(0, 12)}`,
-      type: 'consumption',
+      type: hasManualAdjustment ? 'adjustment' : 'consumption',
       colorCode: entry.colorCode,
       quantity: -entry.demand,
       store: '',
@@ -224,19 +241,27 @@ function submitCart() {
       createdAt: new Date().toISOString(),
     };
 
-    // Find which pattern(s) this color was for
-    const patternNames = [];
+    // Collect source names for the note
+    const sourceNames = [];
     cart.forEach(item => {
       if (item.beads) {
         const bead = item.beads.find(b => b.colorCode === entry.colorCode);
         if (bead) {
-          patternNames.push(`${item.patternName} x${item.quantity}`);
+          if (item.type === 'manual-adjustment') {
+            sourceNames.push(`${item.patternName} (${bead.quantity >= 0 ? '+' : ''}${bead.quantity})`);
+          } else {
+            sourceNames.push(`${item.patternName} x${item.quantity}`);
+          }
         }
       }
     });
 
-    if (patternNames.length > 0) {
-      transaction.note = `图纸耗用: ${patternNames.join(', ')}`;
+    if (sourceNames.length > 0) {
+      if (hasManualAdjustment) {
+        transaction.note = `手动调整: ${sourceNames.join(', ')}`;
+      } else {
+        transaction.note = `图纸耗用: ${sourceNames.join(', ')}`;
+      }
     }
 
     transactions.push(transaction);
@@ -262,7 +287,7 @@ module.exports = {
   updateCartItem,
   removeCartItem,
   clearCart,
-  addMixedBeads,
+  addManualAdjustment,
   getDemandSummary,
   submitCart,
 };
