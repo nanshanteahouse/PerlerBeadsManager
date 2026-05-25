@@ -859,6 +859,8 @@
     var currentSeries = '';
     var selectedColorCode = null;
     var beads = [];
+    var beadSortBy = 'code';
+    var beadSortOrder = 'asc';
 
     if (pattern && pattern.beads) {
       beads = pattern.beads.map(function (b) {
@@ -872,9 +874,51 @@
       beadsSummaryText.innerHTML = '总计色号：<strong>' + colorTypes + '</strong> 种 | 总计颗粒：<strong>' + totalQty.toLocaleString() + '</strong> 粒';
     }
 
+    function sortBeads() {
+      var sorted = beads.slice();
+      var order = beadSortOrder === 'asc' ? 1 : -1;
+      sorted.sort(function (a, b) {
+        var va, vb;
+        if (beadSortBy === 'code') {
+          return a.colorCode.localeCompare(b.colorCode) * order;
+        }
+        if (beadSortBy === 'name') {
+          var ca = window.__COLORS_DATA__ && window.__COLORS_DATA__.length > 0 ? window.__COLORS_DATA__.find(function (c) { return c.code === a.colorCode; }) : null;
+          var cb = window.__COLORS_DATA__ && window.__COLORS_DATA__.length > 0 ? window.__COLORS_DATA__.find(function (c) { return c.code === b.colorCode; }) : null;
+          va = (ca && ca.name) || a.colorCode;
+          vb = (cb && cb.name) || b.colorCode;
+          return va.localeCompare(vb, 'zh-CN') * order;
+        }
+        if (beadSortBy === 'quantity') {
+          return (a.quantity - b.quantity) * order;
+        }
+        if (beadSortBy === 'stock') {
+          va = window.__INVENTORY_DATA__ ? (window.__INVENTORY_DATA__[a.colorCode] || 0) : 0;
+          vb = window.__INVENTORY_DATA__ ? (window.__INVENTORY_DATA__[b.colorCode] || 0) : 0;
+          return (va - vb) * order;
+        }
+        return 0;
+      });
+      return sorted;
+    }
+
+    function updateBeadSortIndicators() {
+      document.querySelectorAll('#beads-table .sort-indicator').forEach(function (el) {
+        el.textContent = '';
+        el.classList.remove('sort-indicator--active');
+      });
+      var activeEl = document.getElementById('bead-sort-' + beadSortBy);
+      if (activeEl) {
+        activeEl.textContent = beadSortOrder === 'asc' ? ' ▲' : ' ▼';
+        activeEl.classList.add('sort-indicator--active');
+      }
+    }
+
     function renderBeadsTable() {
       beadsTbody.innerHTML = '';
-      beads.forEach(function (bead, index) {
+      var sorted = sortBeads();
+      updateBeadSortIndicators();
+      sorted.forEach(function (bead, index) {
         var colorData = null;
         if (window.__COLORS_DATA__ && window.__COLORS_DATA__.length > 0) {
           colorData = window.__COLORS_DATA__.find(function (c) { return c.code === bead.colorCode; });
@@ -1011,6 +1055,19 @@
           updateSummary();
         }
       }
+    });
+
+    document.querySelector('#beads-table thead').addEventListener('click', function (e) {
+      var th = e.target.closest('th.th-sortable');
+      if (!th) return;
+      var newSortBy = th.dataset.sortBy;
+      if (beadSortBy === newSortBy) {
+        beadSortOrder = beadSortOrder === 'asc' ? 'desc' : 'asc';
+      } else {
+        beadSortBy = newSortBy;
+        beadSortOrder = 'asc';
+      }
+      renderBeadsTable();
     });
 
     function getFormData() {
